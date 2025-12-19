@@ -1,95 +1,71 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import newsData from "../../data/news.json";
+
+type Story = {
+  id: number;
+  title: string;
+  date_line: string;
+  location: string;
+  section: string[];
+  why_it_matters: string;
+};
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by testing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const stories: Story[] = newsData.stories;
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  return (
+    <main
+      style={{
+        padding: "2rem",
+        maxWidth: 900,
+        margin: "auto",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <h1>Kids News & Activities</h1>
+
+      {stories.map((story) => (
+        <article
+          key={story.id}
+          style={{
+            marginBottom: "3rem",
+            paddingBottom: "2rem",
+            borderBottom: "1px solid #eee",
+          }}
+        >
+          <h2>{story.title}</h2>
+
+          <p style={{ fontSize: "0.9rem", color: "#555" }}>
+            {story.date_line} · {story.location}
+          </p>
+
+          {/* Main story paragraphs */}
+          {story.section.map((para, index) => (
+            <p
+              key={index}
+              style={{
+                lineHeight: "1.6",
+                fontSize: "1.05rem",
+                marginTop: "1rem",
+              }}
+            >
+              {para}
+            </p>
+          ))}
+
+          {/* Why it matters */}
+          <p
+            style={{
+              marginTop: "1.2rem",
+              padding: "0.75rem",
+              background: "#f5f7ff",
+              borderRadius: "6px",
+              fontSize: "0.95rem",
+            }}
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            <strong>Why it matters:</strong> {story.why_it_matters}
+          </p>
+        </article>
+      ))}
+    </main>
   );
 }
