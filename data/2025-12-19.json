@@ -1,0 +1,59 @@
+{
+  "stories": [
+    {
+      "id": 1,
+      "title": "Winter Reading Days Begin at Mississauga Libraries",
+      "date_line": "On Friday, December 19",
+      "location": "Mississauga, Ontario",
+      "section": [
+        "Mississauga libraries are opening winter reading days for children. Families can visit after school to borrow books, listen to short stories, and try calm games. Librarians help kids choose fun topics like animals, space, and crafts during the cozy holiday week.",
+        "The program runs through the school break. Kids can read at home and return to share what they learned. Quiet corners and friendly staff make libraries a welcoming place for young readers who want a peaceful winter activity indoors."
+      ],
+      "why_it_matters": "Reading helps kids learn and relax. Libraries give families a warm place to spend time together."
+    },
+    {
+      "id": 2,
+      "title": "Free Family Skating Returns to Peel Rinks",
+      "date_line": "On Saturday, December 20",
+      "location": "Peel Region, Ontario",
+      "section": [
+        "Indoor skating rinks across Peel Region are opening for free family skate times. Children can practice gliding on the ice while music plays softly. Staff are on hand to help beginners and keep the rink safe and friendly for everyone.",
+        "Families are encouraged to wear helmets and warm clothes. Some recreation centres offer rest areas for breaks. Skating times are scheduled during the day, making it easy for families to enjoy winter movement together."
+      ],
+      "why_it_matters": "Skating keeps kids active in winter. It is a fun way to build balance and confidence."
+    },
+    {
+      "id": 3,
+      "title": "Vancouver Aquarium Shares Winter Animal Care",
+      "date_line": "On Sunday, December 21",
+      "location": "Vancouver, British Columbia",
+      "section": [
+        "The Vancouver Aquarium is sharing special winter animal care activities this weekend. Keepers explain how sea otters, fish, and birds stay healthy in colder months. Children can watch feeding times and learn about gentle daily routines.",
+        "Indoor exhibits are warm and bright for families visiting during winter. Educators answer questions and show how animals are protected. The focus is on learning, kindness, and understanding how people can care for ocean life."
+      ],
+      "why_it_matters": "Learning about animals builds respect for nature. Kids discover how people help animals thrive."
+    },
+    {
+      "id": 4,
+      "title": "Astronauts Share Space Science Before Holidays",
+      "date_line": "On Monday, December 22",
+      "location": "International Space Station",
+      "section": [
+        "Astronauts on the International Space Station are sharing simple science lessons this week. They float while testing water drops and plant growth in space. Their work helps scientists understand how bodies move and grow without gravity.",
+        "The crew sends friendly messages to classrooms around the world. They show that learning happens every day, even far above Earth. Children can imagine what it feels like to live and work in space."
+      ],
+      "why_it_matters": "Space science sparks curiosity. It shows teamwork and learning beyond our planet."
+    },
+    {
+      "id": 5,
+      "title": "Winter Light Festival Welcomes Families in Japan",
+      "date_line": "On Tuesday, December 23",
+      "location": "Tokyo, Japan",
+      "section": [
+        "A winter light festival in Tokyo is welcoming families this week. Parks glow with colorful lights shaped like stars, animals, and trees. Children walk safely with parents and enjoy music while exploring bright paths together.",
+        "The festival celebrates winter and togetherness. Warm drinks and quiet areas help families rest. Events like this help children learn about cultures around the world in a calm and joyful way."
+      ],
+      "why_it_matters": "Seeing other cultures builds understanding. Kids learn the world is full of friendly traditions."
+    }
+  ]
+}
