@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import * as Accordion from "@radix-ui/react-accordion";
 import Link from "next/link";
 
 export const dynamic = "force-static";
@@ -30,14 +31,10 @@ export function generateStaticParams() {
     }));
 }
 
-export default async function ArchivePage({
-  params,
-}: {
-  params: Promise<{ date: string }>;
-}) {
-  const { date } = await params;
-
+export default function ArchivePage({ params }: { params: { date: string } }) {
   const dataDir = path.join(process.cwd(), "data");
+  const { date } = params;
+
   const news: NewsFile = JSON.parse(
     fs.readFileSync(path.join(dataDir, `${date}.json`), "utf-8")
   );
@@ -52,41 +49,69 @@ export default async function ArchivePage({
     .reverse();
 
   return (
-    <main className="layout">
-      <section className="content">
-        <Link href="/">Back to latest</Link>
+    <main className="mx-auto max-w-6xl px-6 py-12 grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-12">
+      {/* CONTENT */}
+      <section>
+        <Link
+          href="/"
+          className="inline-block mb-6 text-sm text-accent hover:underline"
+        >
+          ← Back to latest
+        </Link>
 
-        {news.stories.map((story) => (
-          <article key={story.id} className="story">
-            <h2 className="story-title">{story.title}</h2>
+        <Accordion.Root
+          type="single"
+          collapsible
+          className="border-t border-border"
+        >
+          {news.stories.map((story) => (
+            <Accordion.Item
+              key={story.id}
+              value={String(story.id)}
+              className="border-b border-border"
+            >
+              <Accordion.Header>
+                <Accordion.Trigger className="w-full text-left py-5 focus:outline-none">
+                  <div className="text-xl font-semibold">{story.title}</div>
+                  <div className="text-sm text-muted mt-1">
+                    {story.date_line} · {story.location}
+                  </div>
+                </Accordion.Trigger>
+              </Accordion.Header>
 
-            <div className="story-meta">
-              {story.date_line} · {story.location}
-            </div>
+              <Accordion.Content className="pb-8">
+                {story.section.map((para, i) => (
+                  <p key={i} className="text-base leading-relaxed mt-5">
+                    {para}
+                  </p>
+                ))}
 
-            {story.section.map((para, i) => (
-              <p key={i}>{para}</p>
-            ))}
-
-            <div className="story-why">
-              <span>Why it matters</span>
-              {story.why_it_matters}
-            </div>
-          </article>
-        ))}
+                <div className="mt-8 rounded-xl bg-card border border-border p-5">
+                  <div className="font-semibold text-accent mb-1">
+                    Why it matters
+                  </div>
+                  <div className="text-base leading-relaxed">
+                    {story.why_it_matters}
+                  </div>
+                </div>
+              </Accordion.Content>
+            </Accordion.Item>
+          ))}
+        </Accordion.Root>
       </section>
 
-      <aside className="sidebar">
-        <div className="archive">
-          <h3>Other Editions</h3>
-          <ul>
-            {archiveDates.map((d) => (
-              <li key={d}>
-                <a href={`/${d}/`}>{d}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* SIDEBAR */}
+      <aside className="border-l border-border pl-6">
+        <h3 className="font-semibold mb-4">Other Editions</h3>
+        <ul className="space-y-2 text-sm">
+          {archiveDates.map((d) => (
+            <li key={d}>
+              <Link href={`/${d}/`} className="text-accent hover:underline">
+                {d}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </aside>
     </main>
   );
