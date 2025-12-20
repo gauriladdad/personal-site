@@ -48,7 +48,13 @@ export default function Home() {
         <article key={story.id} style={{ marginBottom: "3rem" }}>
           <h2>{story.title}</h2>
 
-          <p style={{ fontSize: "0.9rem", color: "#555" }}>
+          <p
+            style={{
+              color: "#b5b5b5",
+              fontSize: "0.95rem",
+              marginTop: "0.25rem",
+            }}
+          >
             {story.date_line} · {story.location}
           </p>
 
@@ -58,8 +64,9 @@ export default function Home() {
               key={index}
               style={{
                 fontSize: "1.15rem",
-                lineHeight: "1.7",
-                marginTop: "1rem",
+                lineHeight: "1.8",
+                marginTop: "1.25rem",
+                color: "#eaeaea",
               }}
             >
               {paragraph}
@@ -68,13 +75,17 @@ export default function Home() {
 
           <p
             style={{
-              background: "#f5f7ff",
-              padding: "1rem",
-              borderRadius: "8px",
-              marginTop: "1.5rem",
+              background: "#1f2933",
+              color: "#ffffff",
+              padding: "1.25rem",
+              borderRadius: "10px",
+              marginTop: "2rem",
+              fontSize: "1.05rem",
+              lineHeight: "1.6",
             }}
           >
-            <strong>Why it matters:</strong> {story.why_it_matters}
+            <strong style={{ color: "#93c5fd" }}>Why it matters:</strong>{" "}
+            {story.why_it_matters}
           </p>
         </article>
       ))}
