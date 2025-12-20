@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 import Link from "next/link";
 
-//export const dynamic = "force-static";
-//export const dynamicParams = false;
+export const dynamic = "force-static";
+export const dynamicParams = false;
 
 type Story = {
   id: number;
@@ -21,14 +21,13 @@ type NewsFile = {
 export function generateStaticParams() {
   const dataDir = path.join(process.cwd(), "data");
 
-  const files = fs
+  return fs
     .readdirSync(dataDir)
-    .filter((file) => file.endsWith(".json"))
-    .filter((file) => file !== "index.json");
-
-  return files.map((file) => ({
-    date: file.replace(".json", ""),
-  }));
+    .filter((f) => f.endsWith(".json"))
+    .filter((f) => f !== "index.json")
+    .map((f) => ({
+      date: f.replace(".json", ""),
+    }));
 }
 
 export default async function ArchivePage({
@@ -38,43 +37,57 @@ export default async function ArchivePage({
 }) {
   const { date } = await params;
 
-  const filePath = path.join(process.cwd(), "data", `${date}.json`);
-  const news: NewsFile = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  const dataDir = path.join(process.cwd(), "data");
+  const news: NewsFile = JSON.parse(
+    fs.readFileSync(path.join(dataDir, `${date}.json`), "utf-8")
+  );
+
+  const archiveDates = fs
+    .readdirSync(dataDir)
+    .filter((f) => f.endsWith(".json"))
+    .filter((f) => f !== "index.json")
+    .map((f) => f.replace(".json", ""))
+    .filter((d) => d !== date)
+    .sort()
+    .reverse();
 
   return (
-    <main style={{ padding: "2rem", maxWidth: 900, margin: "auto" }}>
-      <p style={{ marginBottom: "1.5rem" }}>
-        <Link href="/" style={{ color: "#3366cc" }}>
-          ← Back to latest
-        </Link>
-      </p>
-      <h1>Kids News</h1>
+    <main className="layout">
+      <section className="content">
+        <Link href="/">Back to latest</Link>
 
-      {news.stories.map((story) => (
-        <article key={story.id} style={{ marginBottom: "3rem" }}>
-          <h2>{story.title}</h2>
+        {news.stories.map((story) => (
+          <article key={story.id} className="story">
+            <h2 className="story-title">{story.title}</h2>
 
-          <p style={{ color: "#555", fontSize: "0.9rem" }}>
-            {story.date_line} · {story.location}
-          </p>
+            <div className="story-meta">
+              {story.date_line} · {story.location}
+            </div>
 
-          {story.section.map((para, i) => (
-            <p key={i} style={{ fontSize: "1.15rem", lineHeight: "1.7" }}>
-              {para}
-            </p>
-          ))}
+            {story.section.map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
 
-          <p
-            style={{
-              background: "#f5f7ff",
-              padding: "1rem",
-              borderRadius: "8px",
-            }}
-          >
-            <strong>Why it matters:</strong> {story.why_it_matters}
-          </p>
-        </article>
-      ))}
+            <div className="story-why">
+              <span>Why it matters</span>
+              {story.why_it_matters}
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <aside className="sidebar">
+        <div className="archive">
+          <h3>Other Editions</h3>
+          <ul>
+            {archiveDates.map((d) => (
+              <li key={d}>
+                <a href={`/${d}/`}>{d}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
     </main>
   );
 }
