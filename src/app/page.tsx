@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import * as Accordion from "@radix-ui/react-accordion";
 import Link from "next/link";
 
 type Story = {
@@ -35,68 +34,76 @@ export default function HomePage() {
     .map((f) => f.replace(".json", ""))
     .filter((d) => d !== latestDate)
     .sort()
-    .reverse();
+    .reverse()
+    .slice(0, 5);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12 grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-12">
-      {/* CONTENT */}
-      <section>
-        <h1 className="text-3xl font-bold mb-8">Kids News & Activities</h1>
+    <main className="mx-auto max-w-[65ch] px-6 py-10">
+      {/* Header */}
+      <header className="mb-10 pb-6 border-b border-border/60">
+        <h1 className="text-3xl font-semibold mb-3">Kids News & Activities</h1>
+        <p className="text-sm text-muted dark:text-muted-dark dark:text-muted dark:text-muted-dark-dark">
+          Calm, friendly stories for kids aged 6–9 · Updated daily
+        </p>
+      </header>
 
-        <Accordion.Root
-          type="single"
-          collapsible
-          className="border-t border-border"
-        >
-          {news.stories.map((story) => (
-            <Accordion.Item
-              key={story.id}
-              value={String(story.id)}
-              className="border-b border-border"
-            >
-              <Accordion.Header>
-                <Accordion.Trigger className="w-full text-left py-5 focus:outline-none">
-                  <div className="text-xl font-semibold">{story.title}</div>
-                  <div className="text-sm text-muted mt-1">
-                    {story.date_line} · {story.location}
-                  </div>
-                </Accordion.Trigger>
-              </Accordion.Header>
+      {/* Stories */}
+      <section className="space-y-4">
+        {news.stories.map((story, index) => (
+          <article key={story.id}>
+            {index > 0 && (
+              <hr className="my-8 border-border/80 dark:border-border/60" />
+            )}
+            <h2 className="text-2xl font-semibold mb-2">{story.title}</h2>
 
-              <Accordion.Content className="pb-8">
-                {story.section.map((para, i) => (
-                  <p key={i} className="text-base leading-relaxed mt-5">
-                    {para}
-                  </p>
-                ))}
+            <p className="text-sm text-muted dark:text-muted-dark mb-8">
+              <span className="font-medium text-accent dark:text-accent-dark">
+                Today
+              </span>
+              {" · "}
+              {story.location}
+            </p>
 
-                <div className="mt-8 rounded-xl bg-card border border-border p-5">
-                  <div className="font-semibold text-accent mb-1">
-                    Why it matters
-                  </div>
-                  <div className="text-base leading-relaxed">
-                    {story.why_it_matters}
-                  </div>
-                </div>
-              </Accordion.Content>
-            </Accordion.Item>
-          ))}
-        </Accordion.Root>
+            <div className="space-y-3">
+              {story.section.map((para, i) => (
+                <p key={i} className="font-serif text-[1.05rem] leading-6">
+                  {para}
+                </p>
+              ))}
+            </div>
+
+            <div className="mt-6 pl-4 border-l-2 border-accent/30 dark:border-accent-dark/30">
+              <p className="text-sm leading-6">
+                <span className="font-medium text-accent dark:text-accent-dark">
+                  Why it matters:{" "}
+                </span>
+                {story.why_it_matters}
+              </p>
+            </div>
+          </article>
+        ))}
       </section>
 
-      {/* SIDEBAR */}
-      <aside className="border-l border-border pl-6">
-        <h3 className="font-semibold mb-4">Past Editions</h3>
-        <ul className="space-y-2 text-sm">
-          {archiveDates.map((date) => (
-            <li key={date}>
-              <Link href={`/${date}/`} className="text-accent hover:underline">
-                {date}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </aside>
+      {/* Archives */}
+      {archiveDates.length > 0 && (
+        <footer className="mt-4 pt-8 border-t border-border">
+          <h3 className="text-sm font-medium mb-3 text-muted dark:text-muted-dark">
+            Past days
+          </h3>
+          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            {archiveDates.map((date) => (
+              <li key={date}>
+                <Link
+                  href={`/${date}/`}
+                  className="text-accent dark:text-accent-dark hover:underline"
+                >
+                  {date}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </footer>
+      )}
     </main>
   );
 }
