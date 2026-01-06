@@ -30,9 +30,13 @@ export function generateStaticParams() {
     }));
 }
 
-export default function ArchivePage({ params }: { params: { date: string } }) {
+export default async function ArchivePage({
+  params,
+}: {
+  params: Promise<{ date: string }>;
+}) {
+  const { date } = await params;
   const dataDir = path.join(process.cwd(), "data");
-  const { date } = params;
 
   const news: NewsFile = JSON.parse(
     fs.readFileSync(path.join(dataDir, `${date}.json`), "utf-8")

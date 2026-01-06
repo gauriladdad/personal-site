@@ -15,7 +15,12 @@ type NewsFile = {
   stories: Story[];
 };
 
-export default function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params?: Promise<Record<string, string>>;
+}) {
+  await params;
   const dataDir = path.join(process.cwd(), "data");
 
   const index = JSON.parse(
