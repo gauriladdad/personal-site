@@ -1,6 +1,6 @@
 module.exports = {
   darkMode: "media",
-  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx,astro}"],
   theme: {
     extend: {
       colors: {

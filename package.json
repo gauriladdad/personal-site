@@ -3,27 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
     "lint": "eslint"
   },
   "dependencies": {
-    "next": "15.5.9",
-    "openai": "^6.15.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^5.7.14",
+    "openai": "^6.15.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "autoprefixer": "^10.4.23",
     "eslint": "^9",
-    "eslint-config-next": "15.5.9",
     "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5"
   }
 }
