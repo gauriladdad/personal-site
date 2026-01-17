@@ -1,4 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal Site
+
+
+This is an [Astro](https://astro.build/) project. It is live at [news.gattani.ca](https://news.gattani.ca).
+
+## Why Astro?
+
+We chose Astro for this personal site because of its performance-first approach:
+
+- **Zero JS by Default**: Astro ships no JavaScript to the client unless explicitly requested, resulting in lightning-fast load times.
+- **Islands Architecture**: Interactive components are isolated, keeping the rest of the page static.
+- **Content Focused**: Astro is designed for content-heavy sites like blogs and portfolios.
+
 
 ## Getting Started
 
@@ -14,23 +26,25 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:4321](http://localhost:4321) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+You can start editing the page by modifying `src/pages/index.astro`. The page auto-updates as you edit the file.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about Astro, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Astro Documentation](https://docs.astro.build) - learn about Astro features and API.
+- [Astro Showcase](https://astro.build/themes/) - explore themes and projects built with Astro.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy on Cloudflare Pages
 
-## Deploy on Vercel
+This site is deployed using Cloudflare Pages.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To deploy your own version:
+1. Push your code to a git repository (GitHub/GitLab).
+2. Log in to the Cloudflare dashboard and select your account.
+3. In Account Home, select **Workers & Pages** > **Create Application** > **Pages** > **Connect to Git**.
+4. Select your repository and follow the setup instructions. The build command is `npm run build` and the output directory is `dist`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out the [Cloudflare Pages documentation](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/) for more details.
