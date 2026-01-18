@@ -1,0 +1,213 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Archives">
+  <div class="app-layout">
+    {/* Sidebar */}
+    <aside class="sidebar">
+      <div class="sidebar-content">
+        <div class="date-container">
+          <h2 class="sidebar-date">Archive Explorer</h2>
+          <p class="date-subtitle">Past days of news</p>
+        </div>
+        
+        <nav class="archive-nav">
+          <h3 class="archive-title">Recent Editions</h3>
+          <ul id="recent-archives-list" class="archive-list" style="flex-direction: column; gap: 0.5rem;">
+            {/* Recent 5 days injected here */}
+          </ul>
+        </nav>
+
+        <div style="margin-top: auto; padding-top: 2rem;">
+          <a href="/" class="back-link">← Back to Latest</a>
+        </div>
+      </div>
+    </aside>
+
+    {/* Main Content */}
+    <main class="main-content">
+      <header class="masthead">
+        <h1 class="page-title" id="archive-header">Archive</h1>
+        <p id="news-date" class="text-muted" style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;"></p>
+      </header>
+
+      <nav id="category-nav" class="category-nav" style="display: none;">
+        {/* Categories injected here */}
+      </nav>
+
+      {/* Loading/Error States */}
+      <div id="loading" class="text-center" style="margin: 4rem 0;">
+        <p>Loading archive...</p>
+      </div>
+      <div id="error" class="text-center" style="color: red; display: none; margin: 4rem 0;">
+        <p>Could not load this archive. It might be too old!</p>
+      </div>
+
+      <section id="stories-container">
+        {/* Stories injected here */}
+      </section>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
+
+  async function fetchJson(filename) {
+    const url = `${S3_BASE_URL}/${filename}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      return await response.json();
+    } catch (err) {
+      console.error(`Failed to fetch ${url}:`, err);
+      throw err;
+    }
+  }
+
+  let currentCategory = 'all';
+  let newsDataGlobal = null;
+  let currentDateStr = '';
+
+  function renderCategories(newsData) {
+    const nav = document.getElementById('category-nav');
+    if (!newsData.categories) return;
+    
+    const categories = Object.entries(newsData.categories).filter(([id, data]) => 
+      data.stories && data.stories.length > 0
+    );
+
+    if (categories.length === 0) {
+      nav.style.display = 'none';
+      return;
+    }
+    
+    nav.innerHTML = '';
+    nav.style.display = 'flex';
+    
+    for (const [categoryId, categoryData] of categories) {
+      const btn = document.createElement('button');
+      btn.className = currentCategory === categoryId ? 'category-btn active' : 'category-btn';
+      btn.textContent = categoryData.name;
+      btn.onclick = (e) => filterByCategory(categoryId, e.target);
+      nav.appendChild(btn);
+    }
+
+    const allBtn = document.createElement('button');
+    allBtn.className = currentCategory === 'all' ? 'category-btn active' : 'category-btn';
+    allBtn.textContent = 'All';
+    allBtn.onclick = (e) => filterByCategory('all', e.target);
+    nav.appendChild(allBtn);
+  }
+
+  function filterByCategory(category, target) {
+    currentCategory = category;
+    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+    if (target) target.classList.add('active');
+    renderStories(newsDataGlobal);
+  }
+
+  function renderStories(newsData) {
+    const container = document.getElementById('stories-container');
+    container.innerHTML = '';
+
+    const dateEl = document.getElementById('news-date');
+    if (dateEl && (newsData.display_date || newsData.date)) {
+        dateEl.textContent = newsData.display_date || newsData.date;
+    }
+
+    if (!newsData.categories) return;
+
+    const categoriesToShow = currentCategory === 'all' 
+      ? Object.entries(newsData.categories)
+      : [[currentCategory, newsData.categories[currentCategory]]];
+
+    let storiesTotal = 0;
+
+    categoriesToShow.forEach(([categoryId, categoryData]) => {
+      if (!categoryData || !categoryData.stories || categoryData.stories.length === 0) return;
+      storiesTotal += categoryData.stories.length;
+
+      if (currentCategory === 'all') {
+        const header = document.createElement('h3');
+        header.className = 'category-header';
+        header.textContent = categoryData.name;
+        container.appendChild(header);
+      }
+      
+      categoryData.stories.forEach(story => {
+        const article = document.createElement('article');
+        article.className = 'news-article';
+        const sectionsHtml = story.section.map(para => `<p>${para}</p>`).join('');
+        
+        const articleHtml = `
+          <h2 class="news-heading">${story.title}</h2>
+          <p class="meta-info">${story.location} • ${story.source || 'Verified Source'}</p>
+          <div class="news-content">${sectionsHtml}</div>
+          <div class="why-it-matters">
+            <span class="why-label">Why it matters</span>
+            <p>${story.why_it_matters || ''}</p>
+          </div>
+        `;
+        article.innerHTML = articleHtml;
+        container.appendChild(article);
+      });
+    });
+
+    if (storiesTotal === 0) {
+      container.innerHTML = '<p class="text-center text-muted">No stories found in this archive.</p>';
+    }
+  }
+
+  function renderSidebar(indexData) {
+    const list = document.getElementById('recent-archives-list');
+    const allDates = [...new Set([...(indexData.archive || []), indexData.latest])];
+    
+    // Sort and get last 5 (excluding latest if you want, but user said "last 5 days" so let's show 5 most recent)
+    const recentDates = allDates.sort().reverse().slice(0, 5);
+    
+    list.innerHTML = '';
+    recentDates.forEach(date => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `/archives?date=${date}`;
+      a.className = date === currentDateStr ? 'archive-link active' : 'archive-link';
+      a.style.display = 'block';
+      a.style.padding = '0.5rem';
+      a.style.borderRadius = '4px';
+      if (date === currentDateStr) {
+        a.style.background = 'rgba(99, 102, 241, 0.1)';
+        a.style.color = 'var(--color-accent)';
+      }
+      a.textContent = date;
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+  }
+
+  async function init() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryDate = urlParams.get('date');
+
+      const indexData = await fetchJson('index.json');
+      currentDateStr = queryDate || (indexData.archive ? indexData.archive[indexData.archive.length - 1] : indexData.latest);
+      
+      const newsData = await fetchJson(`${currentDateStr}.json`);
+      newsDataGlobal = newsData;
+      
+      renderSidebar(indexData);
+      renderCategories(newsData);
+      renderStories(newsData);
+      
+      document.getElementById('loading').style.display = 'none';
+    } catch (e) {
+      console.error(e);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+    }
+  }
+
+  init();
+</script>

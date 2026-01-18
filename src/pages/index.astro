@@ -33,25 +33,29 @@ import Layout from '../layouts/Layout.astro';
       {/* Stories will be injected here via JavaScript */}
     </section>
 
-    {/* Archives Footer */}
-    <footer id="archive-footer" class="archive-footer" style="display: none;">
-      <h3 class="archive-title">Past days</h3>
-      <ul id="archive-list" class="archive-list">
-        {/* Archive links injected here */}
-      </ul>
-    </footer>
+    {/* Link to Archive Explorer */}
+    <div class="text-center" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border);">
+      <p class="text-muted" style="margin-bottom: 1rem;">Looking for older stories?</p>
+      <a href="/archives" class="category-btn" style="display: inline-block; padding: 0.5rem 2rem; border: 1px solid var(--color-border); border-radius: 20px;">
+        Explore Archives →
+      </a>
+    </div>
   </main>
 </Layout>
 
 <script>
-  // TODO: Replace with your actual S3 Bucket URL after you create it in AWS Console
-  // Example: https://personal-site-news-yourname.s3.us-east-1.amazonaws.com
-  const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.us-east-2.amazonaws.com';
+  const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
 
   async function fetchJson(filename) {
-    const response = await fetch(`${S3_BASE_URL}/${filename}`);
-    if (!response.ok) throw new Error(`Failed to fetch ${filename}`);
-    return await response.json();
+    const url = `${S3_BASE_URL}/${filename}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      return await response.json();
+    } catch (err) {
+      console.error(`Failed to fetch ${url}:`, err);
+      throw err;
+    }
   }
 
   let currentCategory = 'all';
@@ -244,37 +248,6 @@ import Layout from '../layouts/Layout.astro';
     });
   }
 
-  function renderArchives(indexData, currentFile) {
-    const footer = document.getElementById('archive-footer');
-    const list = document.getElementById('archive-list');
-    
-    // Filter out current file and sort simple string dates
-    // Assuming indexData.archive is list of "YYYY-MM-DD"
-    // Also include 'latest' if we are viewing an archive
-    
-    // Combine all dates unique
-    const allDates = [...new Set([...(indexData.archive || []), indexData.latest])];
-    
-    // Simple verification content exists
-    if (allDates.length <= 1) return; 
-
-    footer.style.display = 'block';
-    list.innerHTML = '';
-
-    allDates.sort().reverse().forEach(date => {
-       // logic: if date is the one we are viewing, skip or mark active? 
-       // For now just list others
-       if (date === currentDateStr) return; 
-
-       const li = document.createElement('li');
-       const a = document.createElement('a');
-       a.href = `/?date=${date}`;
-       a.className = 'archive-link';
-       a.textContent = date;
-       li.appendChild(a);
-       list.appendChild(li);
-    });
-  }
   
   // Global state
   let currentDateStr = '';
@@ -301,7 +274,6 @@ import Layout from '../layouts/Layout.astro';
       // 5. Render
       renderCategories(newsData);
       renderStories(newsData);
-      renderArchives(indexData, currentDateStr);
       
       loading.style.display = 'none';
       

@@ -337,6 +337,29 @@ a:hover {
   color: var(--color-secondary);
   font-weight: 500;
   padding: 0.25rem 0;
+  transition: all 0.2s ease;
+}
+
+.archive-link:hover {
+  color: var(--color-accent);
+  padding-left: 0.5rem;
+}
+
+.archive-link.active {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.archive-nav {
+  margin-top: 2rem;
+}
+
+.archive-nav h3 {
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
 }
 
 /* Category Navigation - Horizontal Text Links */
@@ -418,5 +441,77 @@ a:hover {
 @media (prefers-color-scheme: dark) {
   .category-btn:hover {
     color: #fff;
+  }
+}
+
+/* Site Footer */
+.site-footer {
+  background-color: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  padding: 4rem 1.5rem 2rem;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.footer-sections {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 4rem;
+  margin-bottom: 3rem;
+}
+
+.footer-brand h2 {
+  color: var(--color-accent);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer-brand p {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  max-width: 450px;
+}
+
+.footer-nav h4 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.footer-nav ul {
+  list-style: none;
+}
+
+.footer-nav li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-nav a {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.footer-nav a:hover {
+  color: var(--color-accent);
+}
+
+.footer-bottom {
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .footer-sections {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 }

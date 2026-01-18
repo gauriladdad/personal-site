@@ -76,5 +76,26 @@ const { title } = Astro.props;
     <div class="app-wrapper">
       <slot />
     </div>
+
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-sections">
+          <div class="footer-brand">
+            <h2 class="footer-logo">Kids News</h2>
+            <p>Smart, safe, and simplified news for the next generation.</p>
+          </div>
+          <nav class="footer-nav">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="/">Latest News</a></li>
+              <li><a href="/archives">Archives</a></li>
+            </ul>
+          </nav>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} Kids News. Powered by Gemini AI and BBC News.</p>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
