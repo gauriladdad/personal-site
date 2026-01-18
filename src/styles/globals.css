@@ -1,5 +1,8 @@
 /* src/styles/globals.css */
 
+/* Add these imports at the very top of your CSS file */
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Quicksand:wght@300..700&display=swap");
+
 :root {
   --color-bg: #fdfbf7;
   --color-text: #1a1a1a;
@@ -8,11 +11,26 @@
   --color-muted: #64748b;
   --color-border: #e2e8f0;
 
-  --font-serif: "Merriweather", "Georgia", serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  /* Kid-Friendly Font Stack */
+  --font-serif: "Fredoka", system-ui, sans-serif; /* For Headings */
+  --font-sans: "Quicksand", system-ui, sans-serif; /* For Body Text */
 
   --spacing-unit: 1rem;
   --max-width: 65ch;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  /* Slightly increased line-height for better readability */
+  line-height: 1.7;
+  /* Letter spacing for rounded fonts usually needs a tiny boost */
+  letter-spacing: 0.015em;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -45,17 +63,6 @@
   padding: 0;
 }
 
-body {
-  font-family: var(--font-sans);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  line-height: 1.6;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  -webkit-font-smoothing: antialiased;
-}
-
 h1,
 h2,
 h3,
@@ -63,10 +70,8 @@ h4,
 h5,
 h6 {
   font-family: var(--font-serif);
-  font-weight: 700;
-  line-height: 1.25;
-  margin-bottom: 0.75em;
-  color: var(--color-text);
+  font-weight: 600; /* Fredoka is very bold, 600 is usually enough */
+  letter-spacing: 0.02em;
 }
 
 a {
@@ -289,7 +294,8 @@ a:hover {
 /* News Article Card */
 .news-article {
   margin-bottom: 3rem;
-  padding-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 16px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -328,8 +334,9 @@ a:hover {
 }
 
 .news-content {
-  font-family: var(--font-serif);
-  font-size: 1.125rem;
+  font-family: var(--font-sans); /* Changed from Serif to Sans */
+  font-size: 1.2rem; /* Slightly larger for easier reading */
+  font-weight: 500; /* Quicksand looks best at medium weights */
 }
 
 .news-content p {
