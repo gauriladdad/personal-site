@@ -1,17 +1,12 @@
 /* src/styles/globals.css */
 
 :root {
-  /* Color Palette - Vibrant & Premium */
   --color-bg: #fdfbf7;
-  /* Warm paper-like background */
   --color-text: #1a1a1a;
-  /* Soft black */
-  --color-accent: #e63946;
-  /* Vibrant Red for emphasis */
-  --color-secondary: #457b9d;
-  /* Deep Blue for varied hierarchy */
-  --color-muted: #6c757d;
-  --color-border: #e0e0e0;
+  --color-accent: #6366f1;
+  --color-secondary: #4f46e5;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
 
   --font-serif: "Merriweather", "Georgia", serif;
   --font-sans: "Inter", system-ui, sans-serif;
@@ -21,14 +16,24 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #121212;
-    --color-text: #e0e0e0;
-    --color-accent: #ff6b6b;
-    --color-secondary: #90cea1;
-    --color-muted: #a0a0a0;
-    --color-border: #333;
+  :root:not([data-theme='light']) {
+    --color-bg: #0f172a;
+    --color-text: #f1f5f9;
+    --color-accent: #818cf8;
+    /* Softer Indigo for Dark Mode */
+    --color-secondary: #a5b4fc;
+    --color-muted: #94a3b8;
+    --color-border: #1e293b;
   }
+}
+
+[data-theme='dark'] {
+  --color-bg: #0f172a;
+  --color-text: #f1f5f9;
+  --color-accent: #818cf8;
+  --color-secondary: #a5b4fc;
+  --color-muted: #94a3b8;
+  --color-border: #1e293b;
 }
 
 /* Reset & Base */
@@ -138,11 +143,72 @@ a:hover {
   color: var(--color-muted);
 }
 
-/* specific component styles */
-.page-title {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+/* Theme Toggle Button */
+.theme-toggle {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  padding: 0.75rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
   color: var(--color-accent);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon visibility based on theme */
+.sun {
+  display: none;
+}
+
+.moon {
+  display: block;
+}
+
+[data-theme='dark'] .sun {
+  display: block;
+}
+
+[data-theme='dark'] .moon {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .theme-toggle {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.6rem;
+  }
+}
+
+/* Specific Component Styles */
+.masthead {
+  padding-bottom: 3rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.page-title {
+  font-family: var(--font-serif);
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.75rem;
+  color: var(--color-accent);
+  text-transform: capitalize;
 }
 
 /* Sidebar Specifics */

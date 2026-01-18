@@ -4,19 +4,13 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout>
   <main>
-    {/* Header */}
-    <header className="text-center" style="margin-bottom: 2rem;">
+    {/* Headless Masthead */}
+    <header class="masthead text-center">
       <h1 class="page-title">Kids News</h1>
-      <p class="text-muted">
-        Calm, friendly stories for kids aged 6–9 · Updated weekly
-      </p>
+      <div style="margin-top: 2rem;">
+        <p id="news-date" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-muted); display: none;"></p>
+      </div>
     </header>
-    
-    <div class="text-center" style="margin-bottom: 2rem;">
-      <p id="news-date" style="font-size: 1.2rem; font-weight: bold; color: var(--color-accent); display: none;"></p>
-    </div>
-
-    <hr style="border: 0; border-top: 1px solid var(--color-border); margin-bottom: 2rem;" />
 
     <nav id="category-nav" class="category-nav" style="display: none;">
       {/* Category buttons will be injected here */}
@@ -70,32 +64,50 @@ import Layout from '../layouts/Layout.astro';
     nav.innerHTML = '';
     nav.style.display = 'flex';
     
-    // Add "All" button
-    const allBtn = document.createElement('button');
-    allBtn.className = 'category-btn active';
-    allBtn.textContent = 'All';
-    allBtn.onclick = () => filterByCategory('all');
-    nav.appendChild(allBtn);
+    const categories = Object.entries(newsData.categories);
     
-    // Add category buttons
-    for (const [categoryId, categoryData] of Object.entries(newsData.categories)) {
+    // 1. Add "Top Stories" first if it exists
+    const topEntry = categories.find(([id]) => id === 'top');
+    if (topEntry) {
+      const [categoryId, categoryData] = topEntry;
+      const btn = document.createElement('button');
+      btn.className = 'category-btn active'; // Default active
+      btn.textContent = categoryData.name;
+      btn.dataset.category = categoryId;
+      btn.onclick = (e) => filterByCategory(categoryId, e.target);
+      nav.appendChild(btn);
+      
+      // Set global category to top since it's active
+      currentCategory = categoryId;
+    }
+    
+    // 2. Add other categories
+    for (const [categoryId, categoryData] of categories) {
+      if (categoryId === 'top') continue;
       const btn = document.createElement('button');
       btn.className = 'category-btn';
       btn.textContent = categoryData.name;
       btn.dataset.category = categoryId;
-      btn.onclick = () => filterByCategory(categoryId);
+      btn.onclick = (e) => filterByCategory(categoryId, e.target);
       nav.appendChild(btn);
     }
+
+    // 3. Add "All" button last
+    const allBtn = document.createElement('button');
+    allBtn.className = 'category-btn';
+    allBtn.textContent = 'All';
+    allBtn.onclick = (e) => filterByCategory('all', e.target);
+    nav.appendChild(allBtn);
   }
 
-  function filterByCategory(category) {
+  function filterByCategory(category, target) {
     currentCategory = category;
     
     // Update active button
     document.querySelectorAll('.category-btn').forEach(btn => {
       btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    if (target) target.classList.add('active');
     
     renderStories(newsDataGlobal);
   }

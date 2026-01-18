@@ -236,6 +236,17 @@ def lambda_handler(event, context):
             index_data["archive"].append(index_data["latest"])
             index_data["latest"] = today_str
             
+        # Self-healing: Verify all archive entries actually exist on S3
+        if "archive" in index_data:
+            valid_archive = []
+            for date_key in index_data["archive"]:
+                try:
+                    s3_client.head_object(Bucket=S3_BUCKET_NAME, Key=f"{date_key}.json")
+                    valid_archive.append(date_key)
+                except ClientError:
+                    print(f"Archived file {date_key}.json not found. Removing from index.")
+            index_data["archive"] = valid_archive
+
         s3_client.put_object(
             Bucket=S3_BUCKET_NAME,
             Key="index.json",
