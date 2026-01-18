@@ -11,6 +11,10 @@ import Layout from '../layouts/Layout.astro';
         Calm, friendly stories for kids aged 6–9 · Updated weekly
       </p>
     </header>
+    
+    <div class="text-center" style="margin-bottom: 2rem;">
+      <p id="news-date" style="font-size: 1.2rem; font-weight: bold; color: var(--color-accent); display: none;"></p>
+    </div>
 
     {/* Loading State */}
     <div id="loading" class="text-center" style="margin: 2rem 0;">
@@ -52,18 +56,36 @@ import Layout from '../layouts/Layout.astro';
     const container = document.getElementById('stories-container');
     container.innerHTML = ''; // Clear loading/existing
 
+    // Update global date
+    const dateEl = document.getElementById('news-date');
+    if (dateEl && (newsData.display_date || newsData.date)) {
+        dateEl.textContent = newsData.display_date || newsData.date;
+        dateEl.style.display = 'block';
+    }
+
     newsData.stories.forEach(story => {
       const article = document.createElement('article');
       article.className = 'news-article';
 
       const sectionsHtml = story.section.map(para => `<p>${para}</p>`).join('');
       
+      // Basic domain extraction for cleaner link text
+      let domain = '';
+      try {
+        if (story.link) {
+          domain = new URL(story.link).hostname.replace('www.', '');
+        }
+      } catch (e) {}
+
+      const sourceLink = story.link 
+        ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">Source: ${domain || 'Original Article'}</a>`
+        : '';
+
       article.innerHTML = `
         <h2 class="news-heading">${story.title}</h2>
         <p class="meta-info">
-          <span style="color: var(--color-accent);">${newsData.date}</span>
-          •
           ${story.location}
+          ${sourceLink ? ` • ${sourceLink}` : ''}
         </p>
         <div class="news-content">
           ${sectionsHtml}

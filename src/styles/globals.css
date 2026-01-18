@@ -132,6 +132,19 @@ a:hover {
   letter-spacing: 0.05em;
 }
 
+.source-link {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.source-link:hover {
+  color: var(--color-accent);
+  text-decoration-thickness: 2px;
+}
+
 .news-content {
   font-family: var(--font-serif);
   font-size: 1.125rem;

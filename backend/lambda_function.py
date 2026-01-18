@@ -82,6 +82,7 @@ def lambda_handler(event, context):
         story = {
             "id": entry.get('id', link),
             "title": title,
+            "link": link,
             "location": "World", # Placeholder as RSS might not have location
             "date_line": datetime.datetime.now().strftime("%B %d, %Y"),
             "section": [clean_summary], # List of paragraphs
@@ -91,8 +92,10 @@ def lambda_handler(event, context):
 
     # 4. Generate JSON for Today
     today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    display_date_str = datetime.datetime.now().strftime("%A, %B %d, %Y")
     data = {
         "date": today_str,
+        "display_date": display_date_str,
         "stories": stories
     }
     
