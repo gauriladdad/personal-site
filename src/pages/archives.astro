@@ -140,16 +140,13 @@ import Layout from '../layouts/Layout.astro';
       categoryData.stories.forEach(story => {
         const article = document.createElement('article');
         article.className = 'news-article';
+
         const sectionsHtml = story.section.map(para => `<p>${para}</p>`).join('');
         
         const articleHtml = `
           <h3 class="news-heading">${story.title}</h3>
           <p class="meta-info">${story.location} • ${story.source || 'Verified Source'}</p>
           <div class="news-content">${sectionsHtml}</div>
-          <div class="why-it-matters">
-            <span class="why-label">Why it matters</span>
-            <p>${story.why_it_matters || ''}</p>
-          </div>
         `;
         article.innerHTML = articleHtml;
         container.appendChild(article);

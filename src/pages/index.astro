@@ -121,6 +121,19 @@ import Layout from '../layouts/Layout.astro';
     const container = document.getElementById('stories-container');
     container.innerHTML = '';
 
+    const hasGlobalStories = newsData.categories && 
+    Object.values(newsData.categories).some(cat => cat.stories && cat.stories.length > 0);
+
+    if (!hasGlobalStories) {
+      container.innerHTML = `
+        <div class="text-center" style="margin: 4rem 0; color: var(--color-muted);">
+          <p style="font-size: 1.5rem; font-weight: 600; color: var(--color-text);">Taking a news break!</p>
+          <p style="margin-top: 0.5rem;">We don't have any kid-friendly stories for you right now. Please check back later today.</p>
+        </div>
+      `;
+      return; 
+    }
+
     if (!newsData.categories) {
       renderStoriesLegacy(newsData);
       return;
@@ -177,10 +190,6 @@ import Layout from '../layouts/Layout.astro';
           <div class="news-content">
             ${sectionsHtml}
           </div>
-          <div class="why-it-matters">
-            <span class="why-label">Why it matters</span>
-            <p>${story.why_it_matters || ''}</p>
-          </div>
         `;
         container.appendChild(article);
       });
@@ -228,10 +237,6 @@ import Layout from '../layouts/Layout.astro';
         </p>
         <div class="news-content">
           ${sectionsHtml}
-        </div>
-        <div class="why-it-matters">
-          <span class="why-label">Why it matters</span>
-          <p>${story.why_it_matters || ''}</p>
         </div>
       `;
       container.appendChild(article);
