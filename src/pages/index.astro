@@ -93,7 +93,7 @@ import Layout from '../layouts/Layout.astro';
             title: "Local Dog Saves a Kitten",
             location: "Toronto, Canada",
             source: "Good News Network",
-            link: "#",
+            link: "https://example.com",
             section: ["A brave golden retriever helped a kitten get out of a tree yesterday.", "The kitten is now safe and sound with its family."]
           }
         ]
@@ -192,7 +192,6 @@ import Layout from '../layouts/Layout.astro';
       : [[currentCategory, newsData.categories[currentCategory]]];
 
     let storiesTotal = 0;
-
     categoriesToShow.forEach(([categoryId, categoryData]) => {
       if (!categoryData || !categoryData.stories || categoryData.stories.length === 0) return;
       
@@ -212,6 +211,7 @@ import Layout from '../layouts/Layout.astro';
 
         const sectionsHtml = story.section.map(para => `<p>${para}</p>`).join('');
         
+        // 1. Clean up domain for attribution
         let domain = '';
         try {
           if (story.link) {
@@ -219,28 +219,33 @@ import Layout from '../layouts/Layout.astro';
           }
         } catch (e) {}
 
-        let attribution = story.source || (domain ? `Source: ${domain}` : 'Original Article');
+        // 2. Set the attribution name (e.g., BBC News or Space News)
+        let attribution = story.source || (domain ? domain : 'Original Article');
         if (domain && (domain.includes('bbc.co.uk') || domain.includes('bbci.co.uk') || domain.includes('bbc.com'))) {
           attribution = 'BBC News';
         }
 
-        const sourceLink = (story.link && story.link !== '#') 
-          ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">${attribution}</a>`
-          : `<span class="source-link">${attribution}</span>`;
+        // 3. Build the "Read more" link for the bottom
+        const readMoreHtml = (story.link && story.link !== '#') 
+          ? `<p style="margin-top: 1.5rem; font-size: 0.9rem;">
+              <a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">
+                Read more at ${attribution} →
+              </a>
+            </p>`
+          : '';
 
         article.innerHTML = `
           <h3 class="news-heading">${story.title}</h3>
-          <p class="meta-info">
-            ${story.location}
-            ${sourceLink ? ` • ${sourceLink}` : ''}
-          </p>
+          <p class="meta-info">${story.location}</p>
           <div class="news-content">
             ${sectionsHtml}
           </div>
+          ${readMoreHtml}
         `;
         container.appendChild(article);
       });
     });
+    
 
     if (storiesTotal === 0) {
       container.innerHTML = `
