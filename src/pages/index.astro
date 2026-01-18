@@ -140,7 +140,7 @@ import Layout from '../layouts/Layout.astro';
 
       // Add category header if showing all
       if (currentCategory === 'all') {
-        const header = document.createElement('h3');
+        const header = document.createElement('h2');
         header.className = 'category-header';
         header.textContent = categoryData.name;
         container.appendChild(header);
@@ -169,7 +169,7 @@ import Layout from '../layouts/Layout.astro';
           : `<span class="source-link">${attribution}</span>`;
 
         article.innerHTML = `
-          <h2 class="news-heading">${story.title}</h2>
+          <h3 class="news-heading">${story.title}</h3>
           <p class="meta-info">
             ${story.location}
             ${sourceLink ? ` • ${sourceLink}` : ''}
@@ -197,7 +197,6 @@ import Layout from '../layouts/Layout.astro';
   }
 
   function renderStoriesLegacy(newsData) {
-    // Old format compatibility
     const container = document.getElementById('stories-container');
     newsData.stories.forEach(story => {
       const article = document.createElement('article');
@@ -222,7 +221,7 @@ import Layout from '../layouts/Layout.astro';
           : `<span class="source-link">${attribution}</span>`;
 
       article.innerHTML = `
-        <h2 class="news-heading">${story.title}</h2>
+        <h3 class="news-heading">${story.title}</h3>
         <p class="meta-info">
           ${story.location}
           ${sourceLink ? ` • ${sourceLink}` : ''}

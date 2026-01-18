@@ -233,9 +233,8 @@ a:hover {
 
 /* Specific Component Styles */
 .masthead {
-  padding-bottom: 2rem;
-  /* Reduced from 3rem */
-  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
@@ -297,8 +296,11 @@ a:hover {
 }
 
 .news-heading {
-  font-size: 1.75rem;
+  font-size: clamp(1.25rem, 6vw, 1.85rem);
+  font-weight: 800;
+  line-height: 1.2;
   margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
 }
 
 .meta-info {
@@ -428,16 +430,12 @@ a:hover {
   display: flex;
   gap: 2rem;
   flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 1.5rem;
-  /* Reduced from 2.5rem to fix "empty" feeling */
-  overflow-x: auto;
-  scrollbar-width: none;
+  /* Standard desktop wrap if needed, but usually one line */
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
-.category-nav::-webkit-scrollbar {
-  display: none;
-}
+/* Hide scrollbar logic no longer needed for wrapped layout */
 
 .category-btn {
   padding: 0.5rem 0;
@@ -478,8 +476,8 @@ a:hover {
 }
 
 /* Category Headers */
-.category-header {
-  font-size: 1.25rem;
+h2.category-header {
+  font-size: 1.4rem;
   color: var(--color-text);
   margin-top: 4rem;
   margin-bottom: 2rem;
@@ -488,7 +486,7 @@ a:hover {
   gap: 1rem;
 }
 
-.category-header::before {
+h2.category-header::before {
   content: '';
   width: 4px;
   height: 1.25em;
@@ -534,7 +532,7 @@ a:hover {
   font-weight: 500;
   line-height: 1.4;
   margin-top: 0.25rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
   font-family: var(--font-sans);
   max-width: 500px;
   margin-inline: auto;
@@ -590,10 +588,51 @@ a:hover {
     gap: 1.5rem;
   }
 
-  .footer-tagline {
+  /* Compact Masthead for Mobile */
+  .masthead {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.8rem;
+  }
+
+  .site-tagline {
     font-size: 0.85rem;
-    max-width: 280px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-bottom: 1rem;
+    max-width: 300px;
+  }
+
+  /* Modern Pill Wrap Navigation */
+  .category-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 0.5rem;
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+  }
+
+  .category-btn {
+    padding: 0.5rem 1rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  .category-btn.active {
+    background: var(--color-accent);
+    color: #fff !important;
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  }
+
+  .category-btn::after {
+    display: none;
+    /* Remove underline indicator on mobile pills */
   }
 }
