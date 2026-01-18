@@ -61,40 +61,43 @@ import Layout from '../layouts/Layout.astro';
     const nav = document.getElementById('category-nav');
     if (!newsData.categories) return;
     
+    // Filter out categories with 0 stories
+    const categories = Object.entries(newsData.categories).filter(([id, data]) => 
+      data.stories && data.stories.length > 0
+    );
+
+    if (categories.length === 0) {
+      nav.style.display = 'none';
+      return;
+    }
+    
     nav.innerHTML = '';
     nav.style.display = 'flex';
     
-    const categories = Object.entries(newsData.categories);
-    
-    // 1. Add "Top Stories" first if it exists
+    // 1. Add "Top Stories" first if it exists and has news
     const topEntry = categories.find(([id]) => id === 'top');
     if (topEntry) {
       const [categoryId, categoryData] = topEntry;
       const btn = document.createElement('button');
-      btn.className = 'category-btn active'; // Default active
+      btn.className = currentCategory === categoryId ? 'category-btn active' : 'category-btn';
       btn.textContent = categoryData.name;
-      btn.dataset.category = categoryId;
       btn.onclick = (e) => filterByCategory(categoryId, e.target);
       nav.appendChild(btn);
-      
-      // Set global category to top since it's active
-      currentCategory = categoryId;
     }
     
-    // 2. Add other categories
+    // 2. Add other valid categories
     for (const [categoryId, categoryData] of categories) {
       if (categoryId === 'top') continue;
       const btn = document.createElement('button');
-      btn.className = 'category-btn';
+      btn.className = currentCategory === categoryId ? 'category-btn active' : 'category-btn';
       btn.textContent = categoryData.name;
-      btn.dataset.category = categoryId;
       btn.onclick = (e) => filterByCategory(categoryId, e.target);
       nav.appendChild(btn);
     }
 
     // 3. Add "All" button last
     const allBtn = document.createElement('button');
-    allBtn.className = 'category-btn';
+    allBtn.className = currentCategory === 'all' ? 'category-btn active' : 'category-btn';
     allBtn.textContent = 'All';
     allBtn.onclick = (e) => filterByCategory('all', e.target);
     nav.appendChild(allBtn);
@@ -124,7 +127,6 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (!newsData.categories) {
-      // Fallback for old data structure
       renderStoriesLegacy(newsData);
       return;
     }
@@ -134,9 +136,13 @@ import Layout from '../layouts/Layout.astro';
       ? Object.entries(newsData.categories)
       : [[currentCategory, newsData.categories[currentCategory]]];
 
+    let storiesTotal = 0;
+
     categoriesToShow.forEach(([categoryId, categoryData]) => {
       if (!categoryData || !categoryData.stories || categoryData.stories.length === 0) return;
       
+      storiesTotal += categoryData.stories.length;
+
       // Add category header if showing all
       if (currentCategory === 'all') {
         const header = document.createElement('h3');
@@ -184,6 +190,15 @@ import Layout from '../layouts/Layout.astro';
         container.appendChild(article);
       });
     });
+
+    if (storiesTotal === 0) {
+      container.innerHTML = `
+        <div class="text-center" style="margin: 4rem 0; color: var(--color-muted);">
+          <p style="font-size: 1.25rem; font-weight: 500;">No news stories found for this category today.</p>
+          <p style="margin-top: 0.5rem;">Please try selecting a different category or check back later.</p>
+        </div>
+      `;
+    }
   }
 
   function renderStoriesLegacy(newsData) {
