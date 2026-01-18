@@ -43,7 +43,7 @@ import Layout from '../layouts/Layout.astro';
 
 <script>
   const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
-
+/*
   async function fetchJson(filename) {
     const url = `${S3_BASE_URL}/${filename}`;
     try {
@@ -55,6 +55,53 @@ import Layout from '../layouts/Layout.astro';
       throw err;
     }
   }
+*/
+  /* mock json */
+
+  async function fetchJson(filename) {
+  console.log("Mocking fetch for:", filename);
+  
+  // 1. Mock the Index file
+  if (filename === 'index.json') {
+    return {
+      latest: "2026-01-18",
+      archive: ["2026-01-17", "2026-01-16"]
+    };
+  }
+
+  // 2. Mock the News Data file
+  return {
+    date: "2026-01-18",
+    display_date: "Sunday, Jan 18, 2026",
+    categories: {
+      top: {
+        name: "🚀 Top Stories",
+        stories: [
+          {
+            title: "Astronauts Grow Space Tomatoes!",
+            location: "International Space Station",
+            source: "Space News",
+            link: "https://example.com",
+            section: ["Astronauts have successfully grown tiny tomatoes in space.", "They say the tomatoes taste just like the ones on Earth!"]
+          }
+        ]
+      },
+      animals: {
+        name: "🐾 Animals",
+        stories: [
+          {
+            title: "Local Dog Saves a Kitten",
+            location: "Toronto, Canada",
+            source: "Good News Network",
+            link: "#",
+            section: ["A brave golden retriever helped a kitten get out of a tree yesterday.", "The kitten is now safe and sound with its family."]
+          }
+        ]
+      }
+    }
+  };
+}
+
 
   let currentCategory = 'all';
   let newsDataGlobal = null;

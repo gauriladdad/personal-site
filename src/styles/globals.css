@@ -19,6 +19,12 @@
   --max-width: 65ch;
 }
 
+main {
+  /* This ensures that even if there are no stories, 
+     the footer is pushed down the page */
+  min-height: 75vh;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-bg);
@@ -31,6 +37,10 @@ body {
     background-color 0.3s ease,
     color 0.3s ease;
   -webkit-font-smoothing: antialiased;
+
+  display: flex;
+  flex-direction: column;
+  margin: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -72,6 +82,9 @@ h6 {
   font-family: var(--font-serif);
   font-weight: 600; /* Fredoka is very bold, 600 is usually enough */
   letter-spacing: 0.02em;
+  line-height: 1.25;
+  margin-bottom: 0.75em;
+  color: var(--color-text);
 }
 
 a {
@@ -88,8 +101,8 @@ a:hover {
 .app-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  min-height: 100vh;
   width: 100%;
+  min-height: 88vh;
 }
 
 .sidebar {
@@ -112,18 +125,8 @@ a:hover {
 .app-wrapper {
   max-width: 900px;
   margin: 0 auto;
-  padding: 4rem 3rem;
+  padding: 4rem 2rem;
   /* Increased from 2rem to 3rem for more gutter */
-}
-
-@media (max-width: 600px) {
-  .app-wrapper {
-    padding: 2rem 1.5rem;
-  }
-
-  .mobile-only {
-    display: block;
-  }
 }
 
 .mobile-only {
@@ -132,6 +135,7 @@ a:hover {
 
 @media (max-width: 768px) {
   .app-layout {
+    min-height: 88vh;
     grid-template-columns: 1fr;
   }
 
@@ -230,14 +234,6 @@ a:hover {
   display: none;
 }
 
-@media (max-width: 600px) {
-  .theme-toggle {
-    top: 1rem;
-    right: 1rem;
-    padding: 0.6rem;
-  }
-}
-
 /* Specific Component Styles */
 .masthead {
   padding-bottom: 1rem;
@@ -247,19 +243,13 @@ a:hover {
 
 .page-title {
   font-family: var(--font-serif);
-  font-size: 2.75rem;
-  /* Default Desktop */
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  margin-bottom: 0.5rem;
+  font-size: clamp(2.25rem, 8vw, 3.5rem);
+  font-weight: 700;
+  text-align: center;
   color: var(--color-accent);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
   text-transform: capitalize;
-}
-
-@media (max-width: 600px) {
-  .page-title {
-    font-size: 2.25rem;
-  }
 }
 
 /* Sidebar Specifics */
@@ -436,38 +426,38 @@ a:hover {
   margin-bottom: 1rem;
 }
 
-/* Category Navigation - Horizontal Text Links */
-.category-nav {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  /* Standard desktop wrap if needed, but usually one line */
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
 /* Hide scrollbar logic no longer needed for wrapped layout */
 
 .category-btn {
-  padding: 0.5rem 0;
-  border: none;
-  background: transparent;
+  padding: 0.6rem 1.4rem;
+  border: 2px solid var(--color-border);
+  background: white;
   color: var(--color-muted);
   font-family: var(--font-sans);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
+  border-radius: 30px;
   cursor: pointer;
+  box-shadow: 0 4px 0 var(--color-border); /* 3D "Pressable" effect */
+  transition: all 0.1s ease;
   white-space: nowrap;
-  transition: all 0.2s ease;
-  position: relative;
 }
 
 .category-btn:hover {
-  color: var(--color-text);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.category-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--color-border);
 }
 
 .category-btn.active {
-  color: var(--color-accent);
+  background: var(--color-secondary);
+  color: white !important;
+  border-color: var(--color-secondary);
+  box-shadow: 0 4px 0 #076ad2; /* Darker blue shadow */
 }
 
 .category-btn::after {
@@ -488,13 +478,12 @@ a:hover {
 
 /* Category Headers */
 h2.category-header {
-  font-size: 1.4rem;
-  color: var(--color-text);
+  border-left: 4px solid var(--color-accent);
+  padding-left: 1rem;
   margin-top: 4rem;
   margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  color: var(--color-text);
+  font-family: var(--font-serif);
 }
 
 h2.category-header::before {
@@ -520,8 +509,8 @@ h2.category-header::before {
   background-color: var(--color-bg);
   border-top: 1px solid var(--color-border);
   padding: 1.25rem 1.5rem;
-  margin-top: 4rem;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .footer-content {
@@ -538,15 +527,14 @@ h2.category-header::before {
 }
 
 .site-tagline {
+  font-family: var(--font-sans);
   color: var(--color-muted);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 500;
   line-height: 1.4;
-  margin-top: 0.25rem;
-  margin-bottom: 1.25rem;
-  font-family: var(--font-sans);
+  text-align: center;
   max-width: 500px;
-  margin-inline: auto;
+  margin: 0 auto 2rem auto;
 }
 
 .news-date-sub {
@@ -591,8 +579,22 @@ h2.category-header::before {
 }
 
 @media (max-width: 600px) {
-  .site-footer {
-    padding: 1rem 1rem;
+  .theme-toggle {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.6rem;
+  }
+
+  .app-wrapper {
+    padding: 2rem 1.25rem;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .page-title {
+    font-size: 2.25rem;
   }
 
   .footer-nav ul {
@@ -623,16 +625,6 @@ h2.category-header::before {
     gap: 0.75rem 0.5rem;
     margin-bottom: 2rem;
     padding: 0 0.5rem;
-  }
-
-  .category-btn {
-    padding: 0.5rem 1rem;
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--color-muted);
-    font-weight: 500;
   }
 
   .category-btn.active {
