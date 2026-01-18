@@ -5,8 +5,8 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
   <main>
     {/* Header */}
-    <header className="text-center" style="margin-bottom: 3rem;">
-      <h1 class="page-title">Kids News & Activities</h1>
+    <header className="text-center" style="margin-bottom: 2rem;">
+      <h1 class="page-title">Kids News</h1>
       <p class="text-muted">
         Calm, friendly stories for kids aged 6–9 · Updated weekly
       </p>
@@ -15,6 +15,14 @@ import Layout from '../layouts/Layout.astro';
     <div class="text-center" style="margin-bottom: 2rem;">
       <p id="news-date" style="font-size: 1.2rem; font-weight: bold; color: var(--color-accent); display: none;"></p>
     </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--color-border); margin-bottom: 2rem;" />
+
+    <nav id="category-nav" class="category-nav" style="display: none;">
+      {/* Category buttons will be injected here */}
+    </nav>
+
+    <hr style="border: 0; border-top: 1px solid var(--color-border); margin-top: 2rem; margin-bottom: 3rem;" />
 
     {/* Loading State */}
     <div id="loading" class="text-center" style="margin: 2rem 0;">
@@ -52,9 +60,49 @@ import Layout from '../layouts/Layout.astro';
     return await response.json();
   }
 
+  let currentCategory = 'all';
+  let newsDataGlobal = null;
+
+  function renderCategories(newsData) {
+    const nav = document.getElementById('category-nav');
+    if (!newsData.categories) return;
+    
+    nav.innerHTML = '';
+    nav.style.display = 'flex';
+    
+    // Add "All" button
+    const allBtn = document.createElement('button');
+    allBtn.className = 'category-btn active';
+    allBtn.textContent = 'All';
+    allBtn.onclick = () => filterByCategory('all');
+    nav.appendChild(allBtn);
+    
+    // Add category buttons
+    for (const [categoryId, categoryData] of Object.entries(newsData.categories)) {
+      const btn = document.createElement('button');
+      btn.className = 'category-btn';
+      btn.textContent = categoryData.name;
+      btn.dataset.category = categoryId;
+      btn.onclick = () => filterByCategory(categoryId);
+      nav.appendChild(btn);
+    }
+  }
+
+  function filterByCategory(category) {
+    currentCategory = category;
+    
+    // Update active button
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    renderStories(newsDataGlobal);
+  }
+
   function renderStories(newsData) {
     const container = document.getElementById('stories-container');
-    container.innerHTML = ''; // Clear loading/existing
+    container.innerHTML = '';
 
     // Update global date
     const dateEl = document.getElementById('news-date');
@@ -63,23 +111,93 @@ import Layout from '../layouts/Layout.astro';
         dateEl.style.display = 'block';
     }
 
+    if (!newsData.categories) {
+      // Fallback for old data structure
+      renderStoriesLegacy(newsData);
+      return;
+    }
+
+    // Determine which categories to show
+    const categoriesToShow = currentCategory === 'all' 
+      ? Object.entries(newsData.categories)
+      : [[currentCategory, newsData.categories[currentCategory]]];
+
+    categoriesToShow.forEach(([categoryId, categoryData]) => {
+      if (!categoryData || !categoryData.stories || categoryData.stories.length === 0) return;
+      
+      // Add category header if showing all
+      if (currentCategory === 'all') {
+        const header = document.createElement('h3');
+        header.className = 'category-header';
+        header.textContent = categoryData.name;
+        container.appendChild(header);
+      }
+      
+      categoryData.stories.forEach(story => {
+        const article = document.createElement('article');
+        article.className = 'news-article';
+
+        const sectionsHtml = story.section.map(para => `<p>${para}</p>`).join('');
+        
+        let domain = '';
+        try {
+          if (story.link) {
+            domain = new URL(story.link).hostname.replace('www.', '');
+          }
+        } catch (e) {}
+
+        let attribution = domain || 'Original Article';
+        if (domain && (domain.includes('bbc.co.uk') || domain.includes('bbci.co.uk') || domain.includes('bbc.com'))) {
+          attribution = 'BBC News';
+        }
+
+        const sourceLink = story.link 
+          ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">Source: ${attribution}</a>`
+          : '';
+
+        article.innerHTML = `
+          <h2 class="news-heading">${story.title}</h2>
+          <p class="meta-info">
+            ${story.location}
+            ${sourceLink ? ` • ${sourceLink}` : ''}
+          </p>
+          <div class="news-content">
+            ${sectionsHtml}
+          </div>
+          <div class="why-it-matters">
+            <span class="why-label">Why it matters</span>
+            <p>${story.why_it_matters || ''}</p>
+          </div>
+        `;
+        container.appendChild(article);
+      });
+    });
+  }
+
+  function renderStoriesLegacy(newsData) {
+    // Old format compatibility
+    const container = document.getElementById('stories-container');
     newsData.stories.forEach(story => {
       const article = document.createElement('article');
       article.className = 'news-article';
 
       const sectionsHtml = story.section.map(para => `<p>${para}</p>`).join('');
       
-      // Basic domain extraction for cleaner link text
-      let domain = '';
-      try {
-        if (story.link) {
-          domain = new URL(story.link).hostname.replace('www.', '');
-        }
-      } catch (e) {}
+        let domain = '';
+        try {
+          if (story.link) {
+            domain = new URL(story.link).hostname.replace('www.', '');
+          }
+        } catch (e) {}
 
-      const sourceLink = story.link 
-        ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">Source: ${domain || 'Original Article'}</a>`
-        : '';
+        let attribution = domain || 'Original Article';
+        if (domain && (domain.includes('bbc.co.uk') || domain.includes('bbci.co.uk'))) {
+          attribution = 'BBC News';
+        }
+
+        const sourceLink = story.link 
+          ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">Source: ${attribution}</a>`
+          : '';
 
       article.innerHTML = `
         <h2 class="news-heading">${story.title}</h2>
@@ -151,8 +269,10 @@ import Layout from '../layouts/Layout.astro';
       
       // 4. Fetch News
       const newsData = await fetchJson(`${currentDateStr}.json`);
+      newsDataGlobal = newsData;
       
       // 5. Render
+      renderCategories(newsData);
       renderStories(newsData);
       renderArchives(indexData, currentDateStr);
       
