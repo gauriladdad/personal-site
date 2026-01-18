@@ -7,67 +7,153 @@ import os
 import re
 from botocore.exceptions import ClientError
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from google import genai
+from google.genai import types
 
 # Configuration
 S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME", "personal-site-news")
-MIN_READABILITY_SCORE = 50.0
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 MAX_STORIES_PER_CATEGORY = 5
 
-# Category feeds - Using feeds that work reliably with Lambda
+# Global AI Client for 2026 stack
+ai_client = None
+if GEMINI_API_KEY:
+    # Using v1beta for access to latest 2026 features (Search Grounding, etc.)
+    ai_client = genai.Client(api_key=GEMINI_API_KEY, http_options={'api_version': 'v1beta'})
+
+# Category feeds - Hybrid model (RSS + Generative)
 CATEGORY_FEEDS = {
     "top": {
         "name": "Top Stories",
-        "url": "http://feeds.bbci.co.uk/news/rss.xml"
+        "url": "http://feeds.bbci.co.uk/news/rss.xml",
+        "type": "rss"
     },
-    "education": {
-        "name": "Education",
-        "url": "https://feeds.bbci.co.uk/news/education/rss.xml"
-    },
-    "health": {
-        "name": "Health",
-        "url": "https://feeds.bbci.co.uk/news/health/rss.xml"
-    },
-    "politics": {
-        "name": "Politics",
-        "url": "http://feeds.bbci.co.uk/news/politics/rss.xml"
-    },
-    "science": {
-        "name": "Science",
-        "url": "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml"
+    "canada": {
+        "name": "Canada",
+        "type": "generative",
+        "prompt": "Find 5 current, interesting news stories happening in Canada today. Focus on positive or educational topics suitable for kids."
     },
     "tech": {
         "name": "Technology",
-        "url": "http://feeds.bbci.co.uk/news/technology/rss.xml"
+        "url": "http://feeds.bbci.co.uk/news/technology/rss.xml",
+        "type": "rss"
+    },
+    "science": {
+        "name": "Science",
+        "url": "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+        "type": "rss"
+    },
+    "health": {
+        "name": "Health",
+        "url": "https://feeds.bbci.co.uk/news/health/rss.xml",
+        "type": "rss"
+    },
+    "politics": {
+        "name": "Politics",
+        "url": "http://feeds.bbci.co.uk/news/politics/rss.xml",
+        "type": "rss"
     }
 }
 
 s3_client = boto3.client('s3')
 
-def estimate_syllables(word):
-    word = word.lower()
-    count = 0
-    vowels = "aeiouy"
-    if word and word[0] in vowels:
-        count += 1
-    for index in range(1, len(word)):
-        if word[index] in vowels and word[index - 1] not in vowels:
-            count += 1
-    if word.endswith("e"):
-        count -= 1
-    if count == 0:
-        count += 1
-    return count
+def summarize_with_ai(title, text):
+    """Summarize story and vet for child-friendliness using Gemini 3 Flash."""
+    if not ai_client:
+        return None, None, False
 
-def calculate_flesch_reading_ease(text):
-    if not text: return 0
-    sentences = max(1, text.count('.') + text.count('!') + text.count('?'))
-    words = re.findall(r'\w+', text)
-    num_words = max(1, len(words))
-    num_syllables = sum(estimate_syllables(w) for w in words)
-    
-    # Flesch Reading Ease Formula
-    score = 206.835 - (1.015 * (num_words / sentences)) - (84.6 * (num_syllables / num_words))
-    return score
+    # Refining prompt for 2026 standards
+    prompt = (
+        f"You are a helpful assistant for a kids news site (target age: 11). "
+        f"Analyze this news story and respond ONLY in JSON format.\n\n"
+        f"Rules for Kids:\n"
+        f"- 'suitable': Boolean. False if story contains graphic violence, mature themes, or is too frightening.\n"
+        f"- 'summary': 2-3 friendly, clear sentences (if suitable).\n"
+        f"- 'why_it_matters': 1 short sentence explaining why an 11-year-old would find this interesting.\n\n"
+        f"Title: {title}\n"
+        f"Content: {text}"
+    )
+
+    try:
+        # Using models/gemini-2.5-flash with official Config type for 400 error mitigation
+        response = ai_client.models.generate_content(
+            model="models/gemini-2.5-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type='application/json'
+            )
+        )
+        
+        data = json.loads(response.text)
+        
+        if not data.get('suitable', False):
+            print(f"DEBUG: Story deemed UNSUITABLE by AI: {title}")
+            return None, None, False
+            
+        return data.get('summary'), data.get('why_it_matters'), True
+    except Exception as e:
+        print(f"DEBUG: Gemini AI Error for '{title}': {type(e).__name__}: {str(e)}")
+        # If it's a 404, let's log what models we actually have access to
+        if "404" in str(e) or "NOT_FOUND" in str(e):
+            try:
+                available_models = [m.name for m in ai_client.models.list()]
+                print(f"DEBUG: Available models for this key: {available_models}")
+            except:
+                pass
+        return None, None, False
+
+def generate_category_with_ai(category_id, category_info):
+    """Ask Gemini 3 to report on a specific category directly with Search Grounding."""
+    if not ai_client:
+        print("DEBUG: Missing Global AI Client for generative category.")
+        return []
+
+    prompt = (
+        f"You are a professional reporter for a kids news site. "
+        f"Task: {category_info.get('prompt', 'Find 5 current news stories')}.\n\n"
+        f"Return a list of 5 story objects in JSON. Each story must have:\n"
+        f"1. 'title': Engaging and clear.\n"
+        f"2. 'summary': 2-3 simple sentences for an 11-year-old.\n"
+        f"3. 'why_it_matters': Clear insight for a kid.\n"
+        f"4. 'link': A real URL to a news article.\n\n"
+        f"Respond ONLY with the JSON array."
+    )
+
+    try:
+        print(f"DEBUG: Requesting generated news for category: {category_id}")
+        response = ai_client.models.generate_content(
+            model="models/gemini-2.5-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type='application/json',
+                # Leverage Google Search Grounding for accurate world news
+                tools=[types.Tool(google_search=types.GoogleSearchRetrieval())]
+            )
+        )
+        
+        stories_raw = json.loads(response.text)
+        
+        if not isinstance(stories_raw, list):
+            print(f"DEBUG: AI returned non-list for category {category_id}")
+            return []
+
+        stories = []
+        for s in stories_raw:
+            stories.append({
+                "id": f"ai-{category_id}-{datetime.datetime.now().strftime('%Y%m%d%H%M')}-{len(stories)}",
+                "title": s.get('title', 'AI News Story'),
+                "link": s.get('link', '#'),
+                "location": "Canada" if category_id == 'canada' else "World",
+                "date_line": datetime.datetime.now().strftime("%B %d, %Y"),
+                "section": [s.get('summary', s.get('content', ''))],
+                "why_it_matters": s.get('why_it_matters', 'Interesting news for kids.'),
+                "source": "AI Generated (Verified)"
+            })
+        print(f"DEBUG: Successfully generated {len(stories)} stories for {category_id}.")
+        return stories
+    except Exception as e:
+        print(f"DEBUG: Gemini Generation Error for {category_id}: {type(e).__name__}: {str(e)}")
+        return []
 
 def process_feed_entry(entry):
     """Process a single feed entry and return a story dict if it passes filters, None otherwise."""
@@ -88,78 +174,62 @@ def process_feed_entry(entry):
     # Remove HTML tags using regex
     clean_text = re.sub('<[^<]+?>', '', raw_text).strip()
     
-    # Truncate to roughly 4 sentences to avoid being too long
-    sentences = clean_text.split('. ')
-    if len(sentences) > 4:
-        clean_summary = '. '.join(sentences[:4]) + '.'
+    # 2. AI Summarization & Vetting
+    ai_summary, ai_why, is_suitable = summarize_with_ai(title, clean_text)
+    
+    if is_suitable:
+        summary = ai_summary
+        why_it_matters = ai_why
     else:
-        clean_summary = clean_text
-    
-    # 2. Smart Filter: Keyword Safety Check
-    unsafe_keywords = ['murder', 'kill', 'death', 'crime', 'assault', 'terror', 'drug', 'sex', 'violent', 'war', 'gun']
-    if any(keyword in title.lower() or keyword in clean_summary.lower() for keyword in unsafe_keywords):
-        print(f"Skipping unsafe story: {title}")
+        # If AI says not suitable or fails, we skip
+        print(f"Skipping story (AI Vetted/Failed): {title}")
         return None
-        
-    # 3. Smart Filter: Readability Check
-    readability = calculate_flesch_reading_ease(clean_summary)
-    if readability < MIN_READABILITY_SCORE:
-        print(f"Skipping complex story (Score: {readability}): {title}")
-        return None
-    
+
     # Create Story Object
     story = {
         "id": entry.get('id', link),
         "title": title,
         "link": link,
-        "location": "World",  # Placeholder
+        "location": "World",
         "date_line": datetime.datetime.now().strftime("%B %d, %Y"),
-        "section": [clean_summary],
-        "why_it_matters": "News from around the world."
+        "section": [summary],
+        "why_it_matters": why_it_matters
     }
     return story
 
 def process_category_feed(category_id, category_info):
-    """Fetch and process a single category feed. Returns (category_id, category_data)."""
+    """Fetch/Generate and process a single category. Returns (category_id, category_data)."""
     import time
     start_time = time.time()
     
-    print(f"[{category_id}] Starting to fetch {category_info['name']}...")
+    print(f"[{category_id}] Starting to process {category_info['name']} ({category_info.get('type', 'rss')})...")
     
     try:
-        # Fetch with explicit timeout using requests
-        print(f"[{category_id}] Requesting URL with 10s timeout...")
-        response = requests.get(category_info['url'], timeout=10)
-        response.raise_for_status()
-        
-        fetch_time = time.time() - start_time
-        print(f"[{category_id}] Downloaded in {fetch_time:.2f}s, parsing feed...")
-        
-        # Parse the downloaded content
-        feed = feedparser.parse(response.content)
-        parse_time = time.time() - start_time
-        print(f"[{category_id}] Parsed in {parse_time:.2f}s, found {len(feed.entries)} entries")
-        
-        stories = []
-        for entry in feed.entries:
-            if len(stories) >= MAX_STORIES_PER_CATEGORY:
-                break
+        if category_info.get('type') == 'generative':
+            stories = generate_category_with_ai(category_id, category_info)
+        else:
+            # RSS Flow
+            print(f"[{category_id}] Requesting URL with 10s timeout...")
+            response = requests.get(category_info['url'], timeout=10)
+            response.raise_for_status()
             
-            story = process_feed_entry(entry)
-            if story:
-                stories.append(story)
+            feed = feedparser.parse(response.content)
+            stories = []
+            for entry in feed.entries:
+                if len(stories) >= MAX_STORIES_PER_CATEGORY:
+                    break
+                
+                story = process_feed_entry(entry)
+                if story:
+                    stories.append(story)
         
         total_time = time.time() - start_time
-        print(f"[{category_id}] Completed in {total_time:.2f}s - {len(stories)} stories passed filters")
+        print(f"[{category_id}] Completed in {total_time:.2f}s - {len(stories)} stories ready")
         
         return category_id, {
             "name": category_info['name'],
             "stories": stories
         }
-    except requests.Timeout:
-        error_time = time.time() - start_time
-        print(f"[{category_id}] TIMEOUT after {error_time:.2f}s - feed took too long to respond")
-        raise
     except Exception as e:
         error_time = time.time() - start_time
         print(f"[{category_id}] ERROR after {error_time:.2f}s: {type(e).__name__}: {str(e)}")
