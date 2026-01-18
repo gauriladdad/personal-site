@@ -7,19 +7,19 @@ import Layout from '../layouts/Layout.astro';
     {/* Sidebar */}
     <aside class="sidebar">
       <div class="sidebar-content">
-        <div class="date-container">
+        <div class="date-container mobile-hide">
           <h2 class="sidebar-date">Archive Explorer</h2>
           <p class="date-subtitle">Past days of news</p>
         </div>
         
         <nav class="archive-nav">
           <h3 class="archive-title">Recent Editions</h3>
-          <ul id="recent-archives-list" class="archive-list" style="flex-direction: column; gap: 0.5rem;">
+          <ul id="recent-archives-list" class="archive-list mobile-horizontal">
             {/* Recent 5 days injected here */}
           </ul>
         </nav>
 
-        <div style="margin-top: auto; padding-top: 2rem;">
+        <div class="mobile-hide" style="margin-top: auto; padding-top: 2rem;">
           <a href="/" class="back-link">&larr; Back to Latest</a>
         </div>
       </div>
@@ -29,6 +29,7 @@ import Layout from '../layouts/Layout.astro';
     <main class="main-content">
       <header class="masthead">
         <h1 class="page-title" id="archive-header">Archive</h1>
+        <p class="site-tagline">Smart, safe, and simplified news for the next generation.</p>
         <p id="news-date" class="text-muted" style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;"></p>
       </header>
 
@@ -190,11 +191,21 @@ import Layout from '../layouts/Layout.astro';
       const archives = indexData.archive || [];
       if (archives.length === 0 && !queryDate) {
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('recent-archives-list').innerHTML = '<li class="text-muted">No past editions yet.</li>';
+        
+        // Hide cluttered UI for empty state
+        const sidebar = document.querySelector('.sidebar');
+        const masthead = document.querySelector('.masthead');
+        const layout = document.querySelector('.app-layout');
+        
+        if (sidebar) sidebar.style.display = 'none';
+        if (masthead) masthead.style.display = 'none';
+        if (layout) layout.style.display = 'block'; // Remove grid
+
         document.getElementById('stories-container').innerHTML = `
-          <div class="text-center" style="margin: 4rem 0;">
-            <p style="font-size: 1.2rem; font-weight: 500;">Archive Explorer</p>
-            <p class="text-muted" style="margin-top: 0.5rem; max-width: 400px; margin-inline: auto;">This collection will grow automatically as new daily editions are added. Check back tomorrow!</p>
+          <div class="text-center" style="margin: 15vh 0; padding: 0 2rem;">
+            <p style="font-size: 1.5rem; font-weight: 800; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">Archive Explorer</p>
+            <p class="text-muted" style="max-width: 400px; margin: 0 auto 3rem; line-height: 1.6; font-size: 1.1rem;">Your collection of daily news editions will start growing here automatically from tomorrow.</p>
+            <a href="/" class="category-btn" style="display: inline-block; padding: 0.75rem 2.5rem; border: 1px solid var(--color-border); border-radius: 30px; font-weight: 700;">&larr; Return to Latest News</a>
           </div>`;
         return;
       }

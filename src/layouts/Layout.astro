@@ -72,14 +72,15 @@ const { title, fullWidth = false } = Astro.props;
 
       document.getElementById('theme-toggle').addEventListener('click', handleToggleClick);
 
-      // Hide footer archive link if no past days exist
+      // Show footer archive link ONLY if past days exist
       (async () => {
         try {
-          const res = await fetch('/index.json');
+          const S3_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
+          const res = await fetch(`${S3_URL}/index.json`);
           const data = await res.json();
-          if (!data.archive || data.archive.length === 0) {
-            const el = document.getElementById('footer-archive-item');
-            if (el) el.style.display = 'none';
+          if (data.archive && data.archive.length > 0) {
+            const nav = document.getElementById('footer-nav');
+            if (nav) nav.style.display = 'block';
           }
         } catch (e) {}
       })();
@@ -95,21 +96,15 @@ const { title, fullWidth = false } = Astro.props;
 
     <footer class="site-footer">
       <div class="footer-content">
-        <div class="footer-sections">
-          <div class="footer-brand">
-            <h2 class="footer-logo">Kids News</h2>
-            <p>Smart, safe, and simplified news for the next generation.</p>
-          </div>
-          <nav class="footer-nav">
-            <h4>Quick Links</h4>
-            <ul>
-              <li><a href="/">Latest News</a></li>
-              <li id="footer-archive-item"><a href="/archives">Archives</a></li>
-            </ul>
-          </nav>
-        </div>
+        
+        <nav class="footer-nav" id="footer-nav" style="display: none;">
+          <ul>
+            <li><a href="/archives">Archives</a></li>
+          </ul>
+        </nav>
+
         <div class="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Kids News. Powered by Gemini AI and BBC News.</p>
+          <p>&copy; {new Date().getFullYear()} Kids News. <br /> Powered by Gemini AI and BBC News.</p>
         </div>
       </div>
     </footer>

@@ -5,11 +5,9 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
   <main>
     {/* Headless Masthead */}
-    <header class="masthead text-center">
+    <header class="masthead">
       <h1 class="page-title">Kids News</h1>
-      <div style="margin-top: 2rem;">
-        <p id="news-date" style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-muted); display: none;"></p>
-      </div>
+      <p class="site-tagline">Smart, safe, and simplified news for the next generation.</p>
     </header>
 
     <nav id="category-nav" class="category-nav" style="display: none;">
@@ -122,13 +120,6 @@ import Layout from '../layouts/Layout.astro';
   function renderStories(newsData) {
     const container = document.getElementById('stories-container');
     container.innerHTML = '';
-
-    // Update global date
-    const dateEl = document.getElementById('news-date');
-    if (dateEl && (newsData.display_date || newsData.date)) {
-        dateEl.textContent = newsData.display_date || newsData.date;
-        dateEl.style.display = 'block';
-    }
 
     if (!newsData.categories) {
       renderStoriesLegacy(newsData);
