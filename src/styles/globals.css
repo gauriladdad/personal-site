@@ -233,10 +233,10 @@ a:hover {
 
 /* Specific Component Styles */
 .masthead {
-  padding-bottom: 1.5rem;
+  padding-bottom: 2rem;
   /* Reduced from 3rem */
   margin-bottom: 2rem;
-  border-bottom: 2px solid var(--color-border);
+  text-align: center;
 }
 
 .page-title {
@@ -530,12 +530,24 @@ a:hover {
 
 .site-tagline {
   color: var(--color-muted);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   line-height: 1.4;
   margin-top: 0.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   font-family: var(--font-sans);
+  max-width: 500px;
+  margin-inline: auto;
+}
+
+.news-date-sub {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-accent);
+  margin-bottom: 0.75rem;
+  display: block;
 }
 
 .footer-nav {
