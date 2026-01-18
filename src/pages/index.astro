@@ -146,13 +146,13 @@ import Layout from '../layouts/Layout.astro';
           }
         } catch (e) {}
 
-        let attribution = domain || 'Original Article';
+        let attribution = domain ? `Source: ${domain}` : 'Original Article';
         if (domain && (domain.includes('bbc.co.uk') || domain.includes('bbci.co.uk') || domain.includes('bbc.com'))) {
           attribution = 'BBC News';
         }
 
         const sourceLink = story.link 
-          ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">Source: ${attribution}</a>`
+          ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">${attribution}</a>`
           : '';
 
         article.innerHTML = `
@@ -190,13 +190,13 @@ import Layout from '../layouts/Layout.astro';
           }
         } catch (e) {}
 
-        let attribution = domain || 'Original Article';
-        if (domain && (domain.includes('bbc.co.uk') || domain.includes('bbci.co.uk'))) {
+        let attribution = domain ? `Source: ${domain}` : 'Original Article';
+        if (domain && (domain.includes('bbc.co.uk') || domain.includes('bbci.co.uk') || domain.includes('bbc.com'))) {
           attribution = 'BBC News';
         }
 
         const sourceLink = story.link 
-          ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">Source: ${attribution}</a>`
+          ? `<a href="${story.link}" target="_blank" rel="noopener noreferrer" class="source-link">${attribution}</a>`
           : '';
 
       article.innerHTML = `
