@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Archives">
+<Layout title="Archives" fullWidth={true}>
   <div class="app-layout">
     {/* Sidebar */}
     <aside class="sidebar">
@@ -20,7 +20,7 @@ import Layout from '../layouts/Layout.astro';
         </nav>
 
         <div style="margin-top: auto; padding-top: 2rem;">
-          <a href="/" class="back-link">← Back to Latest</a>
+          <a href="/" class="back-link">&larr; Back to Latest</a>
         </div>
       </div>
     </aside>
@@ -173,13 +173,6 @@ import Layout from '../layouts/Layout.astro';
       const a = document.createElement('a');
       a.href = `/archives?date=${date}`;
       a.className = date === currentDateStr ? 'archive-link active' : 'archive-link';
-      a.style.display = 'block';
-      a.style.padding = '0.5rem';
-      a.style.borderRadius = '4px';
-      if (date === currentDateStr) {
-        a.style.background = 'rgba(99, 102, 241, 0.1)';
-        a.style.color = 'var(--color-accent)';
-      }
       a.textContent = date;
       li.appendChild(a);
       list.appendChild(li);
@@ -192,7 +185,21 @@ import Layout from '../layouts/Layout.astro';
       const queryDate = urlParams.get('date');
 
       const indexData = await fetchJson('index.json');
-      currentDateStr = queryDate || (indexData.archive ? indexData.archive[indexData.archive.length - 1] : indexData.latest);
+      
+      // If no archives yet, show a helpful message and stop
+      const archives = indexData.archive || [];
+      if (archives.length === 0 && !queryDate) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('recent-archives-list').innerHTML = '<li class="text-muted">No past editions yet.</li>';
+        document.getElementById('stories-container').innerHTML = `
+          <div class="text-center" style="margin: 4rem 0;">
+            <p style="font-size: 1.2rem; font-weight: 500;">Archive Explorer</p>
+            <p class="text-muted" style="margin-top: 0.5rem; max-width: 400px; margin-inline: auto;">This collection will grow automatically as new daily editions are added. Check back tomorrow!</p>
+          </div>`;
+        return;
+      }
+
+      currentDateStr = queryDate || archives[archives.length - 1];
       
       const newsData = await fetchJson(`${currentDateStr}.json`);
       newsDataGlobal = newsData;

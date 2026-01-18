@@ -82,10 +82,11 @@ a:hover {
   display: grid;
   grid-template-columns: 280px 1fr;
   min-height: 100vh;
+  width: 100%;
 }
 
 .sidebar {
-  padding: 3rem 2rem;
+  padding: 2.5rem 2rem;
   border-right: 1px solid var(--color-border);
   background-color: var(--color-bg);
   position: sticky;
@@ -95,8 +96,10 @@ a:hover {
 }
 
 .main-content {
-  padding: 3rem 1.5rem;
+  padding: 2.5rem 3rem;
   background-color: var(--color-bg);
+  max-width: 1000px;
+  /* Prevent lines from becoming too long */
 }
 
 .app-wrapper {
@@ -112,7 +115,7 @@ a:hover {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .app-layout {
     grid-template-columns: 1fr;
   }
@@ -196,17 +199,19 @@ a:hover {
 
 /* Specific Component Styles */
 .masthead {
-  padding-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  /* Reduced from 3rem */
   margin-bottom: 2rem;
   border-bottom: 2px solid var(--color-border);
 }
 
 .page-title {
   font-family: var(--font-serif);
-  font-size: 3.5rem;
+  font-size: 2.75rem;
+  /* Reduced from 3.5rem for better balance */
   font-weight: 900;
   letter-spacing: -0.04em;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   color: var(--color-accent);
   text-transform: capitalize;
 }
@@ -224,18 +229,20 @@ a:hover {
 }
 
 .sidebar-date {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   color: var(--color-accent);
-  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
 }
 
 .date-subtitle {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   color: var(--color-muted);
-  margin-bottom: 2rem;
-  font-family: var(--font-serif);
-  font-style: italic;
+  margin-bottom: 0.5rem;
+  /* Reduced from 2rem */
+  font-family: var(--font-sans);
 }
 
 /* News Article Card */
@@ -286,12 +293,14 @@ a:hover {
 }
 
 .why-it-matters {
-  background: rgba(230, 57, 70, 0.05);
-  /* very light accent bg */
+  background: rgba(99, 102, 241, 0.08);
+  /* Use accent color with transparency */
   border-left: 4px solid var(--color-accent);
-  padding: 1rem 1.25rem;
-  margin-top: 1.5rem;
-  border-radius: 0 8px 8px 0;
+  padding: 1.25rem 1.5rem;
+  margin-top: 2rem;
+  border-radius: 0 12px 12px 0;
+  backdrop-filter: blur(4px);
+  /* Subtle glass effect */
 }
 
 .why-label {
@@ -348,6 +357,8 @@ a:hover {
 .archive-link.active {
   color: var(--color-accent);
   font-weight: 700;
+  border-left: 2px solid var(--color-accent);
+  padding-left: 0.5rem;
 }
 
 .archive-nav {
@@ -355,11 +366,11 @@ a:hover {
 }
 
 .archive-nav h3 {
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  letter-spacing: 0.1rem;
   text-transform: uppercase;
   color: var(--color-muted);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 /* Category Navigation - Horizontal Text Links */
@@ -368,7 +379,8 @@ a:hover {
   gap: 2rem;
   flex-wrap: wrap;
   justify-content: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  /* Reduced from 2.5rem to fix "empty" feeling */
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -466,21 +478,25 @@ a:hover {
 
 .footer-brand h2 {
   color: var(--color-accent);
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .footer-brand p {
   color: var(--color-muted);
   font-size: 0.95rem;
-  max-width: 450px;
+  line-height: 1.5;
+  max-width: 400px;
+  /* Re-apply a wider limit for clean flow */
 }
 
 .footer-nav h4 {
-  font-size: 1rem;
+  font-size: 1.1rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
   color: var(--color-text);
 }
 

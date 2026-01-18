@@ -1,7 +1,7 @@
 ---
 import "../styles/globals.css";
 
-const { title } = Astro.props;
+const { title, fullWidth = false } = Astro.props;
 ---
 
 <html lang="en">
@@ -71,11 +71,27 @@ const { title } = Astro.props;
       };
 
       document.getElementById('theme-toggle').addEventListener('click', handleToggleClick);
+
+      // Hide footer archive link if no past days exist
+      (async () => {
+        try {
+          const res = await fetch('/index.json');
+          const data = await res.json();
+          if (!data.archive || data.archive.length === 0) {
+            const el = document.getElementById('footer-archive-item');
+            if (el) el.style.display = 'none';
+          }
+        } catch (e) {}
+      })();
     </script>
 
-    <div class="app-wrapper">
+    {fullWidth ? (
       <slot />
-    </div>
+    ) : (
+      <div class="app-wrapper">
+        <slot />
+      </div>
+    )}
 
     <footer class="site-footer">
       <div class="footer-content">
@@ -88,7 +104,7 @@ const { title } = Astro.props;
             <h4>Quick Links</h4>
             <ul>
               <li><a href="/">Latest News</a></li>
-              <li><a href="/archives">Archives</a></li>
+              <li id="footer-archive-item"><a href="/archives">Archives</a></li>
             </ul>
           </nav>
         </div>
