@@ -22,7 +22,7 @@
 main {
   /* This ensures that even if there are no stories, 
      the footer is pushed down the page */
-  min-height: 75vh;
+  flex: 1;
 }
 
 body {
