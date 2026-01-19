@@ -43,7 +43,7 @@ import Layout from '../layouts/Layout.astro';
 
 <script>
   const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
-/*
+
   async function fetchJson(filename) {
     const url = `${S3_BASE_URL}/${filename}`;
     try {
@@ -55,8 +55,9 @@ import Layout from '../layouts/Layout.astro';
       throw err;
     }
   }
-*/
-  /* mock json */
+
+  /* 
+  // mock json 
 
   async function fetchJson(filename) {
   console.log("Mocking fetch for:", filename);
@@ -101,7 +102,7 @@ import Layout from '../layouts/Layout.astro';
     }
   };
 }
-
+*/
 
   let currentCategory = 'all';
   let newsDataGlobal = null;
