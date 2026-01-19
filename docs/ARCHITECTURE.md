@@ -110,7 +110,7 @@ To scale beyond the 20 calls/day free tier limit while staying free:
 1. Lambda environment variable contains comma-separated keys:
 
    ```
-   GEMINI_API_KEYS = AIzaSyCesDHw_OKVxf691E29m7O3jgWvhBlm5Bs,AIzaSyDyfHaXVcsxE2C0fQzovB9ZNNei68MGNzQ
+   GEMINI_API_KEYS = AIza,AIzaS
    ```
 
 2. Code automatically rotates through keys on each API call
