@@ -1,15 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
 ---
 
 <Layout>
   <main>
-    {/* Headless Masthead */}
     <header class="masthead">
       <h1 class="page-title">Kids News</h1>
       <p class="site-tagline">Smart, safe, and simplified news for the next generation.</p>
     </header>
-
     <nav id="category-nav" class="category-nav" style="display: none;">
       {/* Category buttons will be injected here */}
     </nav>
@@ -41,8 +40,8 @@ import Layout from '../layouts/Layout.astro';
   </main>
 </Layout>
 
-<script>
-  const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
+<script define:vars={{ bucketUrl }}>
+  const S3_BASE_URL = bucketUrl;
 
   async function fetchJson(filename) {
     const url = `${S3_BASE_URL}/${filename}`;
@@ -105,7 +104,24 @@ import Layout from '../layouts/Layout.astro';
 */
 
   let currentCategory = 'all';
+  let currentAge = 'all';
   let newsDataGlobal = null;
+
+  function filterByAge(age, target) {
+    currentAge = age;
+    
+    // Update UI classes for age buttons
+    document.querySelectorAll('.age-btn').forEach(btn => btn.classList.remove('active'));
+    if (target) target.classList.add('active');
+    
+    // Re-render
+    renderStories(newsDataGlobal);
+  }
+
+  // Add these to your existing init code where you select elements
+  document.querySelectorAll('.age-btn').forEach(btn => {
+    btn.onclick = (e) => filterByAge(e.target.dataset.age, e.target);
+  });
 
   function renderCategories(newsData) {
     const nav = document.getElementById('category-nav');
@@ -196,7 +212,14 @@ import Layout from '../layouts/Layout.astro';
     categoriesToShow.forEach(([categoryId, categoryData]) => {
       if (!categoryData || !categoryData.stories || categoryData.stories.length === 0) return;
       
-      storiesTotal += categoryData.stories.length;
+      const filteredStories = categoryData.stories.filter(story => {
+        if (currentAge === 'all') return true;
+        return story.ageBucket === currentAge;
+      });
+
+      if (filteredStories.length === 0) return;
+      
+      storiesTotal += filteredStories.length;
 
       // Add category header if showing all
       if (currentCategory === 'all') {
@@ -205,8 +228,8 @@ import Layout from '../layouts/Layout.astro';
         header.textContent = categoryData.name;
         container.appendChild(header);
       }
-      
-      categoryData.stories.forEach(story => {
+
+      filteredStories.forEach(story => {
         const article = document.createElement('article');
         article.className = 'news-article';
 
@@ -318,7 +341,17 @@ import Layout from '../layouts/Layout.astro';
       // 4. Fetch News
       const newsData = await fetchJson(`${currentDateStr}.json`);
       newsDataGlobal = newsData;
-      
+
+      /*const ageSelect = document.getElementById('age-select');
+
+      ageSelect.onchange = (e) => {
+        currentAge = e.target.value;
+        
+        // Re-run both rendering functions
+        renderCategories(newsDataGlobal); 
+        renderStories(newsDataGlobal);
+      };*/
+            
       // 5. Render
       renderCategories(newsData);
       renderStories(newsData);
