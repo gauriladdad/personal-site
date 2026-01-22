@@ -645,11 +645,6 @@ h2.category-header::before {
 }
 
 /* age filter */
-/* Prevent flicker before JS initializes */
-body:not(.js-ready) .age-nav,
-body:not(.js-ready) #stories-container {
-  visibility: hidden;
-}
 
 .age-nav {
   display: flex;
