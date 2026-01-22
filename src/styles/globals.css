@@ -643,3 +643,34 @@ h2.category-header::before {
   border-color: var(--color-accent);
   transform: translateX(5px); /* Small "nudge" effect */
 }
+
+/* age filter */
+/* Prevent flicker before JS initializes */
+body:not(.js-ready) .age-nav,
+body:not(.js-ready) #stories-container {
+  visibility: hidden;
+}
+
+.age-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.age-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--color-accent);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.age-pill.active {
+  background: var(--color-accent);
+  color: #0b1020;
+}

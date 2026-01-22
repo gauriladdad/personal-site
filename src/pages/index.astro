@@ -9,6 +9,14 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
       <h1 class="page-title">Kids News</h1>
       <p class="site-tagline">Smart, safe, and simplified news for the next generation.</p>
     </header>
+
+    <nav id="age-nav" class="age-nav">
+      <button class="age-pill age-btn" data-age="7-9">Ages 7–9</button>
+      <button class="age-pill age-btn" data-age="10-12">Ages 10–12</button>
+      <button class="age-pill age-btn" data-age="all">All</button>
+    </nav>
+
+
     <nav id="category-nav" class="category-nav" style="display: none;">
       {/* Category buttons will be injected here */}
     </nav>
@@ -104,12 +112,14 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
 */
 
   let currentCategory = 'all';
-  let currentAge = 'all';
+  const savedAge = localStorage.getItem('preferredAge');
+  let currentAge = savedAge || 'all';
   let newsDataGlobal = null;
 
   function filterByAge(age, target) {
     currentAge = age;
-    
+    localStorage.setItem('preferredAge', age);
+
     // Update UI classes for age buttons
     document.querySelectorAll('.age-btn').forEach(btn => btn.classList.remove('active'));
     if (target) target.classList.add('active');
@@ -342,15 +352,9 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
       const newsData = await fetchJson(`${currentDateStr}.json`);
       newsDataGlobal = newsData;
 
-      /*const ageSelect = document.getElementById('age-select');
-
-      ageSelect.onchange = (e) => {
-        currentAge = e.target.value;
-        
-        // Re-run both rendering functions
-        renderCategories(newsDataGlobal); 
-        renderStories(newsDataGlobal);
-      };*/
+     document.querySelectorAll('.age-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.age === currentAge);
+      });
             
       // 5. Render
       renderCategories(newsData);
@@ -362,6 +366,8 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
       if (indexData.archive && indexData.archive.length > 0) {
         document.getElementById('archive-link-container').style.display = 'block';
       }
+
+      document.body.classList.add('js-ready');
       
     } catch (e) {
       console.error(e);
