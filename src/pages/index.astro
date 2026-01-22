@@ -1,14 +1,21 @@
 ---
 import Layout from '../layouts/Layout.astro';
+const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
 ---
 
 <Layout>
   <main>
-    {/* Headless Masthead */}
     <header class="masthead">
       <h1 class="page-title">Kids News</h1>
       <p class="site-tagline">Smart, safe, and simplified news for the next generation.</p>
     </header>
+
+    <nav id="age-nav" class="age-nav">
+      <button class="age-pill age-btn" data-age="7-9">Ages 7–9</button>
+      <button class="age-pill age-btn" data-age="10-12">Ages 10–12</button>
+      <button class="age-pill age-btn" data-age="all">All</button>
+    </nav>
+
 
     <nav id="category-nav" class="category-nav" style="display: none;">
       {/* Category buttons will be injected here */}
@@ -41,8 +48,8 @@ import Layout from '../layouts/Layout.astro';
   </main>
 </Layout>
 
-<script>
-  const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
+<script define:vars={{ bucketUrl }}>
+  const S3_BASE_URL = bucketUrl;
 
   async function fetchJson(filename) {
     const url = `${S3_BASE_URL}/${filename}`;
@@ -105,7 +112,26 @@ import Layout from '../layouts/Layout.astro';
 */
 
   let currentCategory = 'all';
+  const savedAge = localStorage.getItem('preferredAge');
+  let currentAge = savedAge || 'all';
   let newsDataGlobal = null;
+
+  function filterByAge(age, target) {
+    currentAge = age;
+    localStorage.setItem('preferredAge', age);
+
+    // Update UI classes for age buttons
+    document.querySelectorAll('.age-btn').forEach(btn => btn.classList.remove('active'));
+    if (target) target.classList.add('active');
+    
+    // Re-render
+    renderStories(newsDataGlobal);
+  }
+
+  // Add these to your existing init code where you select elements
+  document.querySelectorAll('.age-btn').forEach(btn => {
+    btn.onclick = (e) => filterByAge(e.target.dataset.age, e.target);
+  });
 
   function renderCategories(newsData) {
     const nav = document.getElementById('category-nav');
@@ -196,7 +222,14 @@ import Layout from '../layouts/Layout.astro';
     categoriesToShow.forEach(([categoryId, categoryData]) => {
       if (!categoryData || !categoryData.stories || categoryData.stories.length === 0) return;
       
-      storiesTotal += categoryData.stories.length;
+      const filteredStories = categoryData.stories.filter(story => {
+        if (currentAge === 'all') return true;
+        return story.ageBucket === currentAge;
+      });
+
+      if (filteredStories.length === 0) return;
+      
+      storiesTotal += filteredStories.length;
 
       // Add category header if showing all
       if (currentCategory === 'all') {
@@ -205,8 +238,8 @@ import Layout from '../layouts/Layout.astro';
         header.textContent = categoryData.name;
         container.appendChild(header);
       }
-      
-      categoryData.stories.forEach(story => {
+
+      filteredStories.forEach(story => {
         const article = document.createElement('article');
         article.className = 'news-article';
 
@@ -318,7 +351,11 @@ import Layout from '../layouts/Layout.astro';
       // 4. Fetch News
       const newsData = await fetchJson(`${currentDateStr}.json`);
       newsDataGlobal = newsData;
-      
+
+     document.querySelectorAll('.age-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.age === currentAge);
+      });
+            
       // 5. Render
       renderCategories(newsData);
       renderStories(newsData);
@@ -329,6 +366,8 @@ import Layout from '../layouts/Layout.astro';
       if (indexData.archive && indexData.archive.length > 0) {
         document.getElementById('archive-link-container').style.display = 'block';
       }
+
+      document.body.classList.add('js-ready');
       
     } catch (e) {
       console.error(e);

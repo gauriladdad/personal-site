@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
 ---
 
 <Layout title="Archives" fullWidth={true}>
@@ -52,8 +53,8 @@ import Layout from '../layouts/Layout.astro';
   </div>
 </Layout>
 
-<script>
-  const S3_BASE_URL = 'https://amzn-s3-news-demo-bucket.s3.amazonaws.com';
+<script define:vars={{ bucketUrl }}>
+  const S3_BASE_URL = bucketUrl;
 
   async function fetchJson(filename) {
     const url = `${S3_BASE_URL}/${filename}`;
