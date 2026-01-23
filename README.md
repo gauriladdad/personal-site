@@ -1,95 +1,155 @@
-# Kids News 📰🤖
+Kids News 📰
+============
 
-A premium, minimalist news site designed specifically for kids. It features a hybrid AI pipeline that combines reliable reporting from world-class sources with smart, kid-friendly AI summaries.
+A calm, kid-friendly daily news site that helps children read real news at the right level — without ads, doomscrolling, or parents hovering.
 
-Live at: [news.gattani.ca](https://news.gattani.ca)
+**Live:** [https://news.gattani.ca](https://news.gattani.ca)
 
-## Core Features
+What This Is
+------------
 
-- **Intelligent Two-Pass AI Pipeline** (optimized for free tier):
-  - **Pass 1 - Smart Filtering**: Reads ALL feed entries and uses Gemini to filter suitable stories (cheap batch call)
-  - **Pass 2 - Deep Summarization**: Fetches full article text ONLY for filtered stories and creates comprehensive summaries
-  - **Rate Limiting**: Built-in 500ms delays between API calls to stay safely under Gemini free tier (15 RPM)
-- **Full-Article Summarization**: Reads complete article content instead of shallow RSS snippets for better context and accuracy
-- **AI-Driven Vetting**: All stories evaluated for safety, child-friendliness, and factual accuracy with strict no-inference rules
-- **Smart De-duplication**: Shared tracking across categories ensures the same story never appears twice, even in the "All" view
-- **Per-Category Coverage**:
-  - Top Stories: 20 stories
-  - Technology & Science: 15 stories each
-  - Health: 12 stories
-  - Politics: 10 stories (conservative curation)
-  - Canada: 8 AI-generated stories
-- **Modern UI/UX**:
-  - **Clean Category Navigation**: Integrated pills and headers for focused browsing
-  - **Theme Switcher**: Light and Dark modes with persistent storage
-  - **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
-- **Optimized for Growth**:
-  - **SEO & Social**: Full Open Graph, Twitter Card, and Meta tag support
-  - **Google Analytics**: Integrated tracking for user engagement insights
+Kids News is a **static site + serverless pipeline** that:
 
-## Technology Stack
+*   Reads real journalism from trusted sources
+    
+*   Uses AI **only** to simplify, summarize, and classify
+    
+*   Publishes once per day as static JSON
+    
+*   Costs ~$0 to run (free tiers only)
+    
 
-- **Frontend**: [Astro](https://astro.build/) (v4+) for zero-JS performance and static optimization
-- **Backend**: AWS Lambda (Python 3.12) with intelligent batching & rate limiting
-- **Storage**: AWS S3 for hosting JSON news data (CloudFront CDN compatible)
-- **AI Engine**: Google Gemini 2.5 Flash (free tier friendly)
-- **Feeds**: BBC News RSS (6 categories)
+There are **no user accounts**, **no tracking**, and **no personalization**.
 
-## Lambda Performance & API Quota
+Core Features
+-------------
 
-- **Runtime**: ~2-3 minutes per execution
-- **Daily API Quota**: 20 Gemini API calls per day (free tier limit)
-  - 6 calls for per-category filtering
-  - ~12-14 calls for story summarization
-  - **Total: ~18-20 calls** ✅ Fits within free tier
-- **Stories Generated**: ~50-60 per day (after filtering & deduplication)
-- **Graceful Degradation**: If quota is exceeded mid-run, Lambda publishes partial results to S3 instead of failing completely
+### 🧠 AI-Assisted Editorial Pipeline
 
-**⚠️ Important:** The Gemini free tier has a **hard limit of 20 API calls per day**. This is separate from rate limiting. Once this quota is reached, the Lambda will gracefully populate S3 with whatever stories were successfully processed and continue the next day.
+*   Reads full articles (not just RSS snippets)
+    
+*   Produces **fact-only summaries** (3–5 sentences)
+    
+*   Assigns:
+    
+    *   **Age buckets**: 7–9, 10–12, 13–15
+        
+    *   **Safety flags**: science, technology, environment, politics, world-news, crime
+        
+*   Strict rule: _If unsure → exclude_
+    
 
-## Getting Started
+### 👶 Age-Aware Reading
 
-1. **Install Dependencies**:
+*   Kids can switch age levels instantly
+    
+*   Parents don’t need to pre-configure anything
+    
+*   Stories unsuitable for an age simply don’t appear
+    
 
-   ```bash
-   npm install
-   ```
+### 🗂️ Simple Navigation
 
-2. **Run Development Server**:
+*   Category pills (World, Canada, Science, Tech)
+    
+*   Archive view by date
+    
+*   No infinite scroll, no autoplay, no dark patterns
+    
 
-   ```bash
-   npm run dev
-   ```
+### ⚡ Fast & Free
 
-3. **Backend Setup**:
-   - Lambda function is in `/backend/lambda_function.py`
-   - Run `build_lambda.sh` to package dependencies
-   - Set AWS Lambda environment variables (see below)
+*   Fully static frontend (Astro + Cloudflare Pages)
+    
+*   News delivered as static JSON from S3
+    
+*   No server running 24/7
+    
 
-## AWS Lambda Environment Variables
+Tech Stack
+----------
 
-Configure these in your AWS Lambda function settings:
+LayerTechnologyFrontendAstro (static build)HostingCloudflare PagesDataAWS S3 (JSON files)BackendAWS Lambda (Python)SchedulerAWS EventBridgeAIGoogle Gemini 2.5 FlashFeedsBBC World News, ScienceDaily, Government of Canada (Atom)
 
-```
-GEMINI_API_KEY          → Your Google Gemini API key (get from https://aistudio.google.com/)
-S3_BUCKET_NAME          → Your S3 bucket name (e.g., "personal-site-news")
-```
+How It Works (High Level)
+-------------------------
 
-**Lambda Configuration Recommendations:**
+1.  **Once per day**, Lambda runs
+    
+2.  Fetches RSS / Atom feeds
+    
+3.  Deduplicates stories globally
+    
+4.  Uses Gemini to:
+    
+    *   Decide if a story is kid-safe
+        
+    *   Assign age bucket + flags
+        
+    *   Generate summary
+        
+5.  Writes:
+    
+    *   YYYY-MM-DD.json (daily news)
+        
+    *   index.json (latest + archive)
+        
+6.  Frontend fetches JSON directly from S3
+    
 
-- **Memory**: 512 MB (sufficient for 2-3 minute runtime)
-- **Timeout**: 300 seconds (5 minutes) - provides safety margin
-- **Trigger**: EventBridge rule set to run daily (e.g., `cron(0 7 * * ? *)` for 7 AM UTC)
+No rebuild is required to publish news.
 
-## Deployment
+Environment Variables (Lambda)
+------------------------------
 
-- **Frontend**: Deployed on **Cloudflare Pages**
-  - Build command: `npm run build`
-  - Output directory: `dist`
-  - Auto-deploys on push to main branch
-- **Backend**: Deployed on **AWS Lambda**
-  - Zip the `/backend` folder after running `build_lambda.sh`
-  - Upload to Lambda or use AWS CLI
-  - EventBridge trigger for daily execution
-- **Backend**: Deployed on **AWS Lambda** with an EventBridge trigger for daily updates.
-- **Content**: Served via **AWS S3** (public bucket or CloudFront).
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   S3_BUCKET_NAME=personal-site-news  GEMINI_API_KEYS=key1,key2,key3   `
+
+> Multiple Gemini keys are rotated automatically to stay within free-tier quotas.
+
+Deployment
+----------
+
+### Frontend
+
+*   Platform: Cloudflare Pages
+    
+*   Build: npm run build
+    
+*   Output: /dist
+    
+*   PUBLIC\_S3\_BUCKET\_URL=https://.s3.amazonaws.com
+    
+
+### Backend
+
+*   Package with build\_lambda.sh
+    
+*   Upload zip to AWS Lambda
+    
+*   Memory: 512 MB
+    
+*   Timeout: 15 minutes
+    
+*   Trigger: EventBridge (daily)
+    
+
+Philosophy
+----------
+
+*   **No breaking news**
+    
+*   **No push notifications**
+    
+*   **No outrage optimization**
+    
+*   **No hallucinated facts**
+    
+
+This is intentionally boring software — so kids can focus on learning, not reacting.
+
+Status
+------
+
+This is a **personal project**, actively iterated in public.
+
+Feedback welcome.
