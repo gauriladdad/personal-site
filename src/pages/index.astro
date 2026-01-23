@@ -156,20 +156,8 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
     nav.innerHTML = '';
     nav.style.display = 'flex';
     
-    // 1. Add "Top Stories" first if it exists and has news
-    const topEntry = categories.find(([id]) => id === 'top');
-    if (topEntry) {
-      const [categoryId, categoryData] = topEntry;
-      const btn = document.createElement('button');
-      btn.className = currentCategory === categoryId ? 'category-btn active' : 'category-btn';
-      btn.textContent = categoryData.name;
-      btn.onclick = (e) => filterByCategory(categoryId, e.target);
-      nav.appendChild(btn);
-    }
-    
     // 2. Add other valid categories
     for (const [categoryId, categoryData] of categories) {
-      if (categoryId === 'top') continue;
       const btn = document.createElement('button');
       btn.className = currentCategory === categoryId ? 'category-btn active' : 'category-btn';
       btn.textContent = categoryData.name;
