@@ -30,35 +30,40 @@ GEMINI_API_KEYS = [
 ]
 
 DEFAULT_MAX_STORIES = {
-    "top": 8,
-    "tech": 5,
-    "science": 5,
-    "canada": 5
+    "world": 6,
+    "canada": 6,
+    "tech": 6,
+    "science": 6,
 }
 
 MAX_STORIES_PER_CATEGORY = DEFAULT_MAX_STORIES
 
 CATEGORY_FEEDS = {
-    "top": {
-        "name": "Top Stories",
-        "url": "http://feeds.bbci.co.uk/news/rss.xml",
+    "world": {
+        "name": "World News",
+        "url": "https://feeds.bbci.co.uk/news/rss.xml",
+        "type": "rss"
+    },
+    "canada": {
+        "name": "Top Stories in Canada",
+        "url": "https://api.io.canada.ca/io-server/gc/news/en/v2"
+               "?audience=children"
+               "&sort=publishedDate"
+               "&orderBy=desc"
+               "&pick=100"
+               "&format=atom",
         "type": "rss"
     },
     "tech": {
         "name": "Technology",
-        "url": "http://feeds.bbci.co.uk/news/technology/rss.xml",
+        "url": "https://www.sciencedaily.com/rss/top/technology.xml",
         "type": "rss"
     },
     "science": {
         "name": "Science",
-        "url": "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+        "url": "https://www.sciencedaily.com/rss/top/science.xml",
         "type": "rss"
     },
-    "canada": {
-        "name": "Canada",
-        "type": "generative",
-        "prompt": "Find 5 current, positive or educational news stories happening in Canada suitable for kids."
-    }
 }
 
 s3_client = boto3.client("s3")
@@ -93,6 +98,20 @@ def mark_current_key_failed():
     # Move to next key
     current_key_index = (current_key_index + 1) % len(ai_clients)
 
+def extract_link(entry):
+    # RSS feeds
+    if hasattr(entry, "link") and isinstance(entry.link, str):
+        return entry.link.strip()
+
+    # Atom feeds (like api.io.canada.ca)
+    if hasattr(entry, "links") and entry.links:
+        for l in entry.links:
+            href = l.get("href")
+            if href:
+                return href.strip()
+
+    return ""
+
 def rate_limit_api_call():
     global last_api_call_time
     with rate_limit_lock:
@@ -112,18 +131,37 @@ def summarize_batch_with_ai(articles):
 
     prompt = (
         "You are an editor for a kids news site.\n\n"
+
+        "CONTENT SAFETY:\n"
+        "If the article discusses war, terrorism, graphic violence, sexual content, "
+        "or adult political conflict, mark it as 'exclude' for ages under 13.\n\n"
+
         "For EACH article:\n"
         "- suitable: boolean\n"
-        "- ageBucket: '7-9', '10-12', or 'exclude'\n"
+        "- ageBucket: '7-9', '10-12', '13-15', or 'exclude'\n"
+        "- flags: an array of zero or more labels from this fixed list ONLY:\n"
+        "  ['world-news', 'politics', 'science', 'technology', 'environment', 'crime']\n"
         "- summary: 3–5 factual sentences\n\n"
-        "Rules:\n"
-        "- Use only facts in the article\n"
-        "- No opinions\n"
+
+        "FLAG RULES:\n"
+        "- Use 'world-news' for international events or global affairs\n"
+        "- Use 'politics' for government, elections, or public policy\n"
+        "- Use 'crime' ONLY if non-graphic and suitable for teens\n"
+        "- Use 'science' or 'technology' when the focus is research or innovation\n"
+        "- Use 'environment' for climate, wildlife, or nature-related stories\n"
+        "- If no flag clearly applies, return an empty array\n\n"
+
+        "GENERAL RULES:\n"
+        "- Use only facts from the article\n"
+        "- Do not add opinions or advice\n"
         "- If unsure, choose 'exclude'\n\n"
-        "Return JSON array:\n"
+
+        "Return ONLY valid JSON in this format:\n"
         "[{id, suitable, ageBucket, flags, summary}]\n\n"
+
         f"ARTICLES:\n{json.dumps(articles, separators=(',', ':'))}"
     )
+
 
     try:
         rate_limit_api_call()
@@ -210,7 +248,8 @@ def fetch_article_text(url):
 
 def process_feed_entry(entry):
     title = getattr(entry, "title", "").strip()
-    link = getattr(entry, "link", "").strip()
+    link = extract_link(entry)
+
     if not title or not link:
         return None
 

@@ -13,6 +13,7 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
     <nav id="age-nav" class="age-nav">
       <button class="age-pill age-btn" data-age="7-9">Ages 7–9</button>
       <button class="age-pill age-btn" data-age="10-12">Ages 10–12</button>
+      <button class="age-pill age-btn" data-age="13-15">Ages 13-15</button>
       <button class="age-pill age-btn" data-age="all">All</button>
     </nav>
 
@@ -270,7 +271,7 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
 
         article.innerHTML = `
           <h3 class="news-heading">${story.title}</h3>
-          <p class="meta-info">${story.location}</p>
+          ${story.location ? `<p class="meta-info">${story.location}</p>` : ""}
           <div class="news-content">
             ${sectionsHtml}
           </div>
