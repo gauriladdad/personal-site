@@ -290,7 +290,7 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
             'politics': '🏛️ Politics',
             'crime': '🚨 Crime'
           };
-          return `<span class="flag-pill">${labelMap[flag] || flag}</span>`;
+          return `<span class="flag-pill" data-flag="${flag}">${labelMap[flag] || flag}</span>`;
         }).join('');
 
         article.innerHTML = `
