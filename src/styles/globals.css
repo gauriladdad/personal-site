@@ -492,11 +492,6 @@ h2.category-header::before {
   flex-shrink: 0;
 }
 
-.footer-content {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
 .footer-logo {
   color: var(--color-accent);
   font-size: 1.25rem;
@@ -533,30 +528,6 @@ h2.category-header::before {
   color: var(--color-accent);
   margin-bottom: 0.75rem;
   display: block;
-}
-
-.footer-nav {
-  margin-bottom: 2.5rem;
-}
-
-.footer-nav ul {
-  list-style: none;
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  padding: 0;
-}
-
-.footer-nav a {
-  color: var(--color-text);
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer-nav a:hover {
-  color: var(--color-accent);
 }
 
 .footer-bottom {
