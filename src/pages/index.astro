@@ -112,6 +112,11 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
 }
 */
 
+  const AGE_ORDER = {
+    "7-9": 1,
+    "10-12": 2,
+    "13-15": 3
+  };
   let currentCategory = 'all';
   const savedAge = localStorage.getItem('preferredAge');
   let currentAge = savedAge || 'all';
@@ -225,7 +230,11 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
       
       const filteredStories = categoryData.stories.filter(story => {
         if (currentAge === 'all') return true;
-        return story.ageBucket === currentAge;
+
+        // Defensive: if ageBucket missing, hide it from age-filtered views
+        if (!story.ageBucket || !AGE_ORDER[story.ageBucket]) return false;
+
+        return AGE_ORDER[story.ageBucket] <= AGE_ORDER[currentAge];
       });
 
       if (filteredStories.length === 0) return;
