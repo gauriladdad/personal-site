@@ -300,9 +300,8 @@ a:hover {
 
 /* News Article Card */
 .news-article {
-  margin-bottom: 3rem;
-  padding: 1.5rem;
-  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -476,8 +475,8 @@ a:hover {
 h2.category-header {
   border-left: 4px solid var(--color-accent);
   padding-left: 1rem;
-  margin-top: 4rem;
-  margin-bottom: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
   color: var(--color-text);
   font-family: var(--font-serif);
 }
@@ -525,7 +524,7 @@ h2.category-header::before {
   line-height: 1.4;
   text-align: center;
   max-width: 500px;
-  margin: 0 auto 2rem auto;
+  margin: 0 auto 1.5rem auto;
 }
 
 .category-nav {
@@ -533,7 +532,7 @@ h2.category-header::before {
   flex-wrap: wrap; /* Allows buttons to move to a new line on small screens */
   justify-content: center; /* Centers the buttons on the page */
   gap: 1rem; /* This adds the space between the buttons */
-  margin-bottom: 3rem; /* Adds space between the buttons and the news stories */
+  margin-bottom: 2rem; /* Adds space between the buttons and the news stories */
   padding: 0 1rem;
 }
 
@@ -638,7 +637,7 @@ h2.category-header::before {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .age-pill {
