@@ -132,36 +132,44 @@ def summarize_batch_with_ai(articles):
     prompt = (
         "You are an editor for a kids news site.\n\n"
 
-        "CONTENT SAFETY:\n"
-        "If the article discusses war, terrorism, graphic violence, sexual content, "
-        "or adult political conflict, mark it as 'exclude' for ages under 13.\n\n"
+        "CONTENT SAFETY (VERY IMPORTANT):\n"
+        "- If the article discusses modern war, terrorism, graphic violence, sexual content, "
+        "or adult political conflict, mark it as 'exclude'.\n"
+        "- If the article discusses historical violence, executions, torture, imprisonment, "
+        "treason, betrayal, or punishment (even if non-graphic), mark it as 'exclude'.\n"
+        "- If the topic is dark, frightening, or morally complex, choose 'exclude'.\n\n"
 
-        "For EACH article:\n"
-        "- suitable: boolean\n"
+        "For EACH article, decide:\n"
+        "- suitable: boolean (true only if appropriate for kids)\n"
         "- ageBucket: '7-9', '10-12', '13-15', or 'exclude'\n"
         "- flags: an array of zero or more labels from this fixed list ONLY:\n"
         "  ['world-news', 'politics', 'science', 'technology', 'environment', 'crime']\n"
-        "- summary: 3–5 factual sentences\n\n"
+        "- summary: 3–5 short, factual sentences written in clear, kid-friendly language\n\n"
+
+        "AGE BUCKET GUIDANCE:\n"
+        "- '7-9': positive, educational, or light-interest stories only\n"
+        "- '10-12': factual news without violence, crime, or adult themes\n"
+        "- '13-15': may include non-graphic crime, serious world events, or complex topics\n"
+        "- 'exclude': anything inappropriate or unclear for kids\n\n"
 
         "FLAG RULES:\n"
-        "- Use 'world-news' for international events or global affairs\n"
-        "- Use 'politics' for government, elections, or public policy\n"
-        "- Use 'crime' ONLY if non-graphic and suitable for teens\n"
-        "- Use 'science' or 'technology' when the focus is research or innovation\n"
+        "- Use 'world-news' for international or global events\n"
+        "- Use 'politics' for government, elections, laws, or public policy\n"
+        "- Use 'crime' ONLY if non-graphic and appropriate for teens (13–15)\n"
+        "- Use 'science' or 'technology' for research, discoveries, or innovation\n"
         "- Use 'environment' for climate, wildlife, or nature-related stories\n"
         "- If no flag clearly applies, return an empty array\n\n"
 
         "GENERAL RULES:\n"
-        "- Use only facts from the article\n"
-        "- Do not add opinions or advice\n"
-        "- If unsure, choose 'exclude'\n\n"
+        "- Use ONLY facts stated in the article\n"
+        "- Do NOT add opinions, advice, or speculation\n"
+        "- If unsure about suitability or age, choose 'exclude'\n\n"
 
-        "Return ONLY valid JSON in this format:\n"
+        "Return ONLY valid JSON in this exact format:\n"
         "[{id, suitable, ageBucket, flags, summary}]\n\n"
 
         f"ARTICLES:\n{json.dumps(articles, separators=(',', ':'))}"
     )
-
 
     try:
         rate_limit_api_call()
