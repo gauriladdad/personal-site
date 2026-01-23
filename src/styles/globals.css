@@ -693,7 +693,7 @@ h2.category-header::before {
   white-space: nowrap;
 
   /* universal visibility insurance */
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] .flag-pill {
@@ -735,15 +735,15 @@ h2.category-header::before {
 }
 
 [data-theme="light"] {
-  --flag-tech-bg: rgba(96, 165, 250, 0.15);
-  --flag-tech-text: #1e3a8a;
+  --flag-tech-bg: rgba(96, 165, 250, 0.12);
+  --flag-tech-text: #1e40af;
 
-  --flag-environment-bg: rgba(34, 197, 94, 0.18);
-  --flag-environment-text: #065f46;
-
-  --flag-science-bg: rgba(168, 85, 247, 0.18);
+  --flag-science-bg: rgba(168, 85, 247, 0.14);
   --flag-science-text: #581c87;
 
-  --flag-world-bg: rgba(59, 130, 246, 0.18);
+  --flag-environment-bg: rgba(34, 197, 94, 0.14);
+  --flag-environment-text: #065f46;
+
+  --flag-world-bg: rgba(59, 130, 246, 0.14);
   --flag-world-text: #1e40af;
 }
