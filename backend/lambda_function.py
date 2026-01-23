@@ -41,7 +41,7 @@ MAX_STORIES_PER_CATEGORY = DEFAULT_MAX_STORIES
 CATEGORY_FEEDS = {
     "world": {
         "name": "World News",
-        "url": "https://feeds.bbci.co.uk/news/rss.xml",
+        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
         "type": "rss"
     },
     "canada": {
@@ -379,7 +379,8 @@ def lambda_handler(event, context):
         Bucket=S3_BUCKET_NAME,
         Key=f"{today}.json",
         Body=json.dumps(payload, indent=2),
-        ContentType="application/json"
+        ContentType="application/json",
+        CacheControl="public, max-age=60"
     )
 
     # 2. Update index.json
@@ -407,7 +408,7 @@ def lambda_handler(event, context):
         Key="index.json",
         Body=json.dumps(index_data, indent=2),
         ContentType="application/json",
-        CacheControl="public, max-age=300"
+        CacheControl="public, max-age=60"
     )
 
     return {"statusCode": 200, "body": "OK"}
