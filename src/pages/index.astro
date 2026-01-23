@@ -278,9 +278,28 @@ const bucketUrl = import.meta.env.PUBLIC_S3_BUCKET_URL;
             </p>`
           : '';
 
+        const flags = Array.isArray(story.flags) ? story.flags : [];
+        const ageLabel = story.ageBucket ? `Ages ${story.ageBucket}` : 'All ages';
+
+        const flagsHtml = flags.map(flag => {
+          const labelMap = {
+            'world-news': '🌍 World',
+            'science': '🔬 Science',
+            'technology': '💻 Tech',
+            'environment': '🌱 Environment',
+            'politics': '🏛️ Politics',
+            'crime': '🚨 Crime'
+          };
+          return `<span class="flag-pill">${labelMap[flag] || flag}</span>`;
+        }).join('');
+
         article.innerHTML = `
           <h3 class="news-heading">${story.title}</h3>
           ${story.location ? `<p class="meta-info">${story.location}</p>` : ""}
+          <div class="story-meta">
+            <span class="age-badge">Suitable for ${ageLabel}</span>
+            ${flagsHtml ? `<div class="flags">${flagsHtml}</div>` : ''}
+          </div>
           <div class="news-content">
             ${sectionsHtml}
           </div>
