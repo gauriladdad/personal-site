@@ -361,10 +361,21 @@ def process_category_feed(category_id, category_info):
 # -------------------------
 
 def lambda_handler(event, context):
+
+    print("START: Kids News daily publication")
+
     categories = {}
 
     for cid, info in CATEGORY_FEEDS.items():
+        print(f"PROCESSING: category={cid}")
+
         cid, data = process_category_feed(cid, info)
+        
+        print(
+            f"COMPLETE: category={cid} "
+            f"stories={len(data.get('stories', []))}"
+        )
+        
         categories[cid] = data
 
     today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -379,8 +390,7 @@ def lambda_handler(event, context):
         Bucket=S3_BUCKET_NAME,
         Key=f"{today}.json",
         Body=json.dumps(payload, indent=2),
-        ContentType="application/json",
-        CacheControl="public, max-age=60"
+        ContentType="application/json"
     )
 
     # 2. Update index.json
@@ -408,7 +418,33 @@ def lambda_handler(event, context):
         Key="index.json",
         Body=json.dumps(index_data, indent=2),
         ContentType="application/json",
-        CacheControl="public, max-age=60"
+        CacheControl="public, max-age=300"
+    )
+
+    # 3. Write publication heartbeat
+    health_payload = {
+        "lastSuccessfulRun": datetime.datetime.now(
+            datetime.timezone.utc
+        ).isoformat(),
+        "date": today,
+        "stories": sum(
+            len(category.get("stories", []))
+            for category in categories.values()
+        )
+    }
+
+    s3_client.put_object(
+        Bucket=S3_BUCKET_NAME,
+        Key="health.json",
+        Body=json.dumps(health_payload, indent=2),
+        ContentType="application/json",
+        CacheControl="no-cache, no-store, must-revalidate"
+    )
+
+    print(
+        f"PUBLICATION_SUCCESS: "
+        f"date={today} "
+        f"stories={health_payload['stories']}"
     )
 
     return {"statusCode": 200, "body": "OK"}
